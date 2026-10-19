@@ -29,6 +29,8 @@ status: "approved"
 | `templates/` | 新規文書の起点テンプレート（編集は規約変更時のみ） |
 
 - 上記 5 ディレクトリ以外に文書を新規作成しない。
+- リポジトリ直下の運用ファイル（`README.md`、`index.md`、`log.md`、
+  本ファイル）はディレクトリ契約の対象外とする。
 - 根拠資料が外部にある場合、`resource` キーか本文の `参照` セクションで示す。
 
 ## 文書メタデータ
@@ -68,7 +70,8 @@ status: "approved"
 ## 検証手順
 
 ```bash
-markdownlint -c .markdownlint.jsonc --dot notes/ chats/ templates/ README.md AGENTS.md
+markdownlint -c .markdownlint.jsonc --dot notes/ chats/ adr/ reports/ \
+  templates/ README.md AGENTS.md index.md log.md
 ```
 
 - コミット前に必ず実行し、警告 0 件を確認する。

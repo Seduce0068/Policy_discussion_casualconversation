@@ -25,7 +25,11 @@ status: "approved"
 | --- | --- |
 | `notes/` | 政策検討メモ。テーマごとに 1 ファイル、命名は `YYYY-MM-DD-topic.md` |
 | `chats/` | 雑談記録。命名は `YYYY-MM-DD-topic.md` |
+| `adr/` | アーキテクチャ決定記録。命名は `ADR-XXX-topic.md` |
+| `reports/` | 技術報告書・評価レポート。命名は `YYYY-MM-DD-topic.md` |
 | `templates/` | 新規文書の起点となるテンプレート |
+| `index.md` | リポジトリ内の全文書索引 |
+| `log.md` | 運用ログ。作業履歴を時系列で記録 |
 | `AGENTS.md` | エージェントと人間が共通で従う執筆・検証ルール |
 
 ## 文書の作り方
@@ -35,11 +39,13 @@ status: "approved"
 3. `generated.at` は RFC 3339 の明示オフセット付き時刻に更新する。
 4. 本文の最初の見出しは `##` から始める。
 5. 検証コマンドを実行し、markdownlint の警告を 0 件にしてから push する。
+6. `index.md` と `log.md` を同じコミットまたは直後のコミットで更新する。
 
 ## 検証
 
 ```bash
-markdownlint -c .markdownlint.jsonc --dot notes/ chats/ templates/ README.md AGENTS.md
+markdownlint -c .markdownlint.jsonc --dot notes/ chats/ adr/ reports/ \
+  templates/ README.md AGENTS.md index.md log.md
 ```
 
 ## 参照
