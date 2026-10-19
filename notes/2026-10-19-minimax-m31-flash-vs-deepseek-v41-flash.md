@@ -8,7 +8,7 @@ tags:
   - opencode
 generated:
   by: opencode
-  at: "2026-10-19T21:58:00+09:00"
+  at: "2026-10-19T21:48:00+09:00"
 status: "draft"
 ---
 
