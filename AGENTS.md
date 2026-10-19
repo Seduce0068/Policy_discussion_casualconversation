@@ -24,9 +24,11 @@ status: "approved"
 | --- | --- |
 | `notes/` | 政策・技術・社会課題の検討メモ（`type: Note`） |
 | `chats/` | 雑談から得た気づきや話題の記録（`type: Chat`） |
+| `adr/` | アーキテクチャ決定記録（`type: ADR`） |
+| `reports/` | 技術報告書・実現可能性評価などの完成レポート（`type: Report`） |
 | `templates/` | 新規文書の起点テンプレート（編集は規約変更時のみ） |
 
-- `notes/` と `chats/` と `templates/` 以外に文書を新規作成しない。
+- 上記 5 ディレクトリ以外に文書を新規作成しない。
 - 根拠資料が外部にある場合、`resource` キーか本文の `参照` セクションで示す。
 
 ## 文書メタデータ
@@ -37,8 +39,10 @@ status: "approved"
   - 正: `2026-10-19T12:17:46+09:00`
   - 誤: `2026-10-19`（日付のみ）、`2026-10-19T03:17:46Z`（`Z` 接尾）
 - `tags` は小文字の kebab-case で 1 つ以上 5 種以内に抑える。
-- `type` は `Note`、`Chat`、`Reference` を許容する。新たな型を追加する場合、
-  先に本セクションで定義してから使う。
+- `type` は `Note`、`Chat`、`Reference`、`ADR`、`Report` を許容する。
+  新たな型を追加する場合、先に本セクションで定義してから使う。
+  - `ADR` は意思決定とその背景・代替案・結果を記録する。
+  - `Report` は調査・評価の結果を構造化して報告する。
 - `status` は `draft`、`review`、`approved`、`deprecated` のいずれか。
 - タイムスタンプ等の検証は `okf` スキルのチェックリストと markdownlint で行う。
 
@@ -46,6 +50,8 @@ status: "approved"
 
 - ファイル名は小文字 kebab-case で、記録時点の日付を先頭に付ける。
   例: `2026-10-19-repository-setup.md`
+- `adr/` のファイルは ADR 標準慣例に従い、日付前置の代わりに
+  `ADR-XXX-kebab-case.md` 形式を許容する。例: `adr/ADR-001-combini-e-receipt.md`
 - 同一トピックの継続は既存ファイルへの追記が基本。新規ファイルに分離する
   場合は旧ファイルの `status` を更新し、相互参照を残す。
 
