@@ -1,15 +1,4 @@
----
-type: Reference
-title: "文書索引"
-description: "リポジトリ内の全文書と運用ファイルの一覧。新規追加時に更新する"
-tags:
-  - index
-  - okf
-generated:
-  by: opencode
-  at: "2026-10-19T21:23:20+09:00"
-status: "approved"
----
+# 文書索引
 
 ## 運用ファイル
 
