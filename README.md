@@ -31,7 +31,7 @@ status: "approved"
 | `index.md` | リポジトリ全体の索引。配下の一覧は各ディレクトリの `index.md` |
 | `log.md` | 運用ログ。作業履歴を時系列で記録 |
 | `AGENTS.md` | エージェントと人間が共通で従う執筆・検証ルール |
-| `scripts/` | 索引生成スクリプト（`okf-index.rs`） |
+| `scripts/` | 索引生成・メタデータ検索スクリプト（`okf-index.rs`、`okf-find.rs`） |
 | `.githooks/` | pre-commit フック（索引の自動更新） |
 
 - コンテンツディレクトリ（`notes/`、`chats/`、`adr/`、`reports/`）には
@@ -53,6 +53,29 @@ status: "approved"
 5. 検証コマンドを実行し、markdownlint の警告を 0 件にしてから push する。
 6. 所属ディレクトリの `index.md` は pre-commit フックが自動更新する。
    ルート `log.md` に作業を追記する。
+
+## 文書を探す
+
+まず対象ディレクトリの `index.md` を読む。メタデータで絞る場合は
+`okf-find` を使う。
+
+```bash
+# 型で絞る
+rust-script scripts/okf-find.rs --type Note
+
+# タグ 2 つを AND で絞る
+rust-script scripts/okf-find.rs --tag okf --tag markdownlint
+
+# 下書きのパスだけを出す
+rust-script scripts/okf-find.rs --status draft -l
+
+# 本文の全文検索は grep
+grep -rn "キーワード" notes/ chats/ adr/ reports/
+```
+
+- 出力は TSV（`path`、`type`、`status`、`title`、`description`、`tags`）。
+- `--text` は frontmatter とパスのみを対象にする。
+- 一致なしの終了コードは 1。
 
 ## 検証
 

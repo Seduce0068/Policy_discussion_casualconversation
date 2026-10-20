@@ -2,6 +2,9 @@
 
 ## 2026-10-21
 
+- 00:44 - メタデータ検索スクリプト `scripts/okf-find.rs` を追加。
+  `--type`、`--tag`、`--status`、`--text`、`--dir` で絞り、TSV で出力する。
+  AGENTS.md に探索手順、README に使用例を追記。
 - 00:26 - `log.md` は自動生成せず、文書変更時に人が追記する方針に決定。
   pre-commit フックが追記漏れを警告するようにし、AGENTS.md と README を更新。
 - 00:22 - pre-commit フック `.githooks/pre-commit` を追加。
