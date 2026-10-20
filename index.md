@@ -9,32 +9,19 @@
 | [index.md](index.md) | 本索引 |
 | [log.md](log.md) | 運用ログ |
 
-## 文書一覧
+## ディレクトリ
 
-### adr/
-
-| 文書 | 状態 | 概要 |
-| --- | --- | --- |
-| [ADR-001-combini-e-receipt](adr/ADR-001-combini-e-receipt.md) | 提案中 | コンビニ電子レシート統合アーキテクチャの最小構成と決定事項 |
-
-### reports/
-
-| 文書 | 状態 | 概要 |
-| --- | --- | --- |
-| [2026-10-19-e-receipt-feasibility-report](reports/2026-10-19-e-receipt-feasibility-report.md) | draft | コンビニ電子レシート導入の実現可能性評価レポート |
-
-### notes/
-
-| 文書 | 状態 | 概要 |
-| --- | --- | --- |
-| [2026-10-19-repository-setup](notes/2026-10-19-repository-setup.md) | approved | リポジトリの初期整備と運用ルールの決定記録 |
-| [2026-10-19-minimax-m31-flash-vs-deepseek-v41-flash](notes/2026-10-19-minimax-m31-flash-vs-deepseek-v41-flash.md) | draft | MiniMax M3.1 Flash と DeepSeek V4.1 Flash の仕様・価格・用途比較 |
-
-### chats/
-
-- 記録なし。
+| ディレクトリ | 概要 |
+| --- | --- |
+| [adr/](adr/index.md) | アーキテクチャ決定記録 |
+| [reports/](reports/index.md) | 技術報告書・評価レポート |
+| [notes/](notes/index.md) | 政策・技術・社会課題の検討メモ |
+| [chats/](chats/index.md) | 雑談記録 |
+| [templates/](templates/) | 新規文書の起点テンプレート |
 
 ## 更新ルール
 
-- 文書を追加・移動・ `status` 変更した場合、本索引を同じコミットで更新する。
-- 見出しはディレクトリ単位とし、表内の並びは作成日の新しい順とする。
+- 文書を追加・移動・ `status` 変更した場合、所属ディレクトリの
+  `index.md` を同じコミットで更新する。
+- ディレクトリを追加した場合、本索引とそのディレクトリの `index.md` を追加する。
+- 各索引の並びは作成日の新しい順とする。
