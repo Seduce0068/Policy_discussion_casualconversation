@@ -29,6 +29,7 @@ status: "approved"
 | `templates/` | 新規文書の起点テンプレート（編集は規約変更時のみ） |
 
 - 上記 5 ディレクトリ以外に文書を新規作成しない。
+- `scripts/` は索引生成スクリプトの置き場であり、文書契約の対象外とする。
 - リポジトリ直下の運用ファイル（`README.md`、`index.md`、`log.md`、
   本ファイル）はディレクトリ契約の対象外とする。
 - `index.md` は各コンテンツディレクトリに置ける予約ファイルであり、
@@ -62,6 +63,10 @@ status: "approved"
   リンク先の `description` を転記する。表形式でもよい。
 - `index.md` は各コンテンツディレクトリに置く。ルートはディレクトリ一覧、
   各階層は直下の文書一覧を持つ。`templates/` には置かない。
+- 各コンテンツディレクトリの `index.md` は生成領域を持つ。
+  `<!-- okf-index:begin -->` と `<!-- okf-index:end -->` の間は
+  手動編集せず、`rust-script scripts/okf-index.rs` で更新する。
+- ルート `index.md` は手動管理とする。
 - `log.md` はルートのみに置く。ディレクトリ別の履歴は git に委ねる。
 - `log.md` の日付見出しは `## YYYY-MM-DD` とし、新しい順に並べる。
   1 作業 1 行とし、時刻は 24 時間制で記す。
@@ -94,13 +99,16 @@ status: "approved"
 ```bash
 markdownlint -c .markdownlint.jsonc --dot notes/ chats/ adr/ reports/ \
   templates/ README.md AGENTS.md index.md log.md
+rust-script scripts/okf-index.rs --check
 ```
 
+- 索引が古い場合、`rust-script scripts/okf-index.rs` で更新してから再実行する。
 - コミット前に必ず実行し、警告 0 件を確認する。
 - markdownlint コマンドが無い環境では次の代替コマンドを使う。
 
 ```bash
-npx markdownlint-cli@0.49.1 -c .markdownlint.jsonc --dot notes/ chats/ templates/ README.md AGENTS.md
+npx markdownlint-cli@0.49.1 -c .markdownlint.jsonc --dot notes/ chats/ \
+  adr/ reports/ templates/ README.md AGENTS.md index.md log.md
 ```
 
 ## コミット規約

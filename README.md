@@ -31,6 +31,7 @@ status: "approved"
 | `index.md` | リポジトリ全体の索引。配下の一覧は各ディレクトリの `index.md` |
 | `log.md` | 運用ログ。作業履歴を時系列で記録 |
 | `AGENTS.md` | エージェントと人間が共通で従う執筆・検証ルール |
+| `scripts/` | 索引生成スクリプト（`okf-index.rs`） |
 
 - コンテンツディレクトリ（`notes/`、`chats/`、`adr/`、`reports/`）には
   `index.md` を置き、直下の文書を列挙する。
@@ -43,14 +44,15 @@ status: "approved"
 3. `generated.at` は RFC 3339 の明示オフセット付き時刻に更新する。
 4. 本文の最初の見出しは `##` から始める。
 5. 検証コマンドを実行し、markdownlint の警告を 0 件にしてから push する。
-6. 所属ディレクトリの `index.md` とルート `log.md` を同じコミットまたは
-   直後のコミットで更新する。
+6. `rust-script scripts/okf-index.rs` で所属ディレクトリの `index.md` を
+   更新し、ルート `log.md` に作業を追記する。
 
 ## 検証
 
 ```bash
 markdownlint -c .markdownlint.jsonc --dot notes/ chats/ adr/ reports/ \
   templates/ README.md AGENTS.md index.md log.md
+rust-script scripts/okf-index.rs --check
 ```
 
 ## 参照

@@ -1,5 +1,9 @@
 # レポート一覧
 
+## 文書一覧
+
+<!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
-| [2026-10-19-e-receipt-feasibility-report](2026-10-19-e-receipt-feasibility-report.md) | draft | コンビニ電子レシート導入の実現可能性評価レポート |
+| [コンビニ電子レシート導入の実現可能性評価レポート](2026-10-19-e-receipt-feasibility-report.md) | draft | 大手コンビニ4チェーンのアプリ資産・データ骨格・法務要件を検証し、 紙レシート廃止に至る実装ロードマップを評価する技術報告書 |
+<!-- okf-index:end -->

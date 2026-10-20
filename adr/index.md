@@ -1,5 +1,9 @@
 # ADR 一覧
 
+## 文書一覧
+
+<!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
-| [ADR-001-combini-e-receipt](ADR-001-combini-e-receipt.md) | 提案中 | コンビニ電子レシート統合アーキテクチャの最小構成と決定事項 |
+| [コンビニ電子レシート統合アーキテクチャ (ADR-001)](ADR-001-combini-e-receipt.md) | - | 大手コンビニチェーン横断での電子レシート実装の最小構成と決定事項 |
+<!-- okf-index:end -->

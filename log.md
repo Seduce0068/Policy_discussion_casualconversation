@@ -2,6 +2,9 @@
 
 ## 2026-10-21
 
+- 00:20 - 索引生成スクリプト `scripts/okf-index.rs` を追加。
+  各コンテンツディレクトリの `index.md` の生成領域を frontmatter から
+  更新する。`--check` を検証手順に組み込み、AGENTS.md と README を更新。
 - 00:17 - 各コンテンツディレクトリ（`adr/`、`reports/`、`notes/`、`chats/`）に
   `index.md` を追加。ルート `index.md` はディレクトリ索引へ変更した。
   `log.md` はルートのみとし、ディレクトリ別履歴は git に委ねる方針を
