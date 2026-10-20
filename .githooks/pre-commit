@@ -1,22 +1,30 @@
 #!/bin/sh
-# Regenerate OKF index files before each commit.
+# Regenerate OKF index files and remind about log.md before each commit.
 # Enable once per clone with: git config core.hooksPath .githooks
 set -eu
 
 root=$(git rev-parse --show-toplevel)
-script="$root/scripts/okf-index.rs"
-[ -f "$script" ] || exit 0
+cd "$root"
 
-if ! command -v rust-script >/dev/null 2>&1; then
-  echo "pre-commit: rust-script が見つからないため索引生成をスキップします" >&2
-  exit 0
+script="scripts/okf-index.rs"
+if [ -f "$script" ]; then
+  if command -v rust-script >/dev/null 2>&1; then
+    rust-script "$script"
+    for path in adr/index.md chats/index.md notes/index.md reports/index.md; do
+      if [ -f "$path" ]; then
+        git add -- "$path"
+      fi
+    done
+  else
+    echo "pre-commit: rust-script が見つからないため索引生成をスキップします" >&2
+  fi
 fi
 
-cd "$root"
-rust-script "$script"
+changed=$(git diff --cached --name-only)
+docs=$(printf '%s\n' "$changed" \
+  | grep -E '^(adr|chats|notes|reports)/[^/]+\.md$' \
+  | grep -vE '/(index|log)\.md$' || true)
 
-for path in adr/index.md chats/index.md notes/index.md reports/index.md; do
-  if [ -f "$path" ]; then
-    git add -- "$path"
-  fi
-done
+if [ -n "$docs" ] && ! printf '%s\n' "$changed" | grep -qx 'log.md'; then
+  echo "pre-commit: 文書を変更しています。log.md への追記を検討してください。" >&2
+fi

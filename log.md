@@ -2,6 +2,8 @@
 
 ## 2026-10-21
 
+- 00:26 - `log.md` は自動生成せず、文書変更時に人が追記する方針に決定。
+  pre-commit フックが追記漏れを警告するようにし、AGENTS.md と README を更新。
 - 00:22 - pre-commit フック `.githooks/pre-commit` を追加。
   コミット前に索引を自動更新・ステージする。`core.hooksPath` を
   `.githooks` に設定し、AGENTS.md と README に有効化手順を追記。
