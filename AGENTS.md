@@ -65,7 +65,10 @@ status: "approved"
   各階層は直下の文書一覧を持つ。`templates/` には置かない。
 - 各コンテンツディレクトリの `index.md` は生成領域を持つ。
   `<!-- okf-index:begin -->` と `<!-- okf-index:end -->` の間は
-  手動編集せず、`rust-script scripts/okf-index.rs` で更新する。
+  手動編集しない。
+- pre-commit フックが `rust-script scripts/okf-index.rs` を実行し、
+  生成領域の更新とステージを自動で行う。
+- フックは初回のみ `git config core.hooksPath .githooks` で有効化する。
 - ルート `index.md` は手動管理とする。
 - `log.md` はルートのみに置く。ディレクトリ別の履歴は git に委ねる。
 - `log.md` の日付見出しは `## YYYY-MM-DD` とし、新しい順に並べる。

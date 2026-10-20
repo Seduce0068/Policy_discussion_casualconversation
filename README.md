@@ -32,10 +32,15 @@ status: "approved"
 | `log.md` | 運用ログ。作業履歴を時系列で記録 |
 | `AGENTS.md` | エージェントと人間が共通で従う執筆・検証ルール |
 | `scripts/` | 索引生成スクリプト（`okf-index.rs`） |
+| `.githooks/` | pre-commit フック（索引の自動更新） |
 
 - コンテンツディレクトリ（`notes/`、`chats/`、`adr/`、`reports/`）には
   `index.md` を置き、直下の文書を列挙する。
 - `log.md` はルートのみに置く。ディレクトリ別の履歴は git に委ねる。
+- 初回のみ `git config core.hooksPath .githooks` を実行し、
+  pre-commit フックを有効化する。
+- フックはコミット前に `scripts/okf-index.rs` を実行し、
+  各 `index.md` を自動更新してステージする。
 
 ## 文書の作り方
 
@@ -44,8 +49,8 @@ status: "approved"
 3. `generated.at` は RFC 3339 の明示オフセット付き時刻に更新する。
 4. 本文の最初の見出しは `##` から始める。
 5. 検証コマンドを実行し、markdownlint の警告を 0 件にしてから push する。
-6. `rust-script scripts/okf-index.rs` で所属ディレクトリの `index.md` を
-   更新し、ルート `log.md` に作業を追記する。
+6. 所属ディレクトリの `index.md` は pre-commit フックが自動更新する。
+   ルート `log.md` に作業を追記する。
 
 ## 検証
 

@@ -2,6 +2,9 @@
 
 ## 2026-10-21
 
+- 00:22 - pre-commit フック `.githooks/pre-commit` を追加。
+  コミット前に索引を自動更新・ステージする。`core.hooksPath` を
+  `.githooks` に設定し、AGENTS.md と README に有効化手順を追記。
 - 00:20 - 索引生成スクリプト `scripts/okf-index.rs` を追加。
   各コンテンツディレクトリの `index.md` の生成領域を frontmatter から
   更新する。`--check` を検証手順に組み込み、AGENTS.md と README を更新。
