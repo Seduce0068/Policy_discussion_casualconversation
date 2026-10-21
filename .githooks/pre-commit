@@ -21,10 +21,18 @@ if [ -f "$script" ]; then
 fi
 
 changed=$(git diff --cached --name-only)
-docs=$(printf '%s\n' "$changed" \
-  | grep -E '^(adr|chats|notes|reports)/[^/]+\.md$' \
-  | grep -vE '/(index|log)\.md$' || true)
 
-if [ -n "$docs" ] && ! printf '%s\n' "$changed" | grep -qx 'log.md'; then
-  echo "pre-commit: 文書を変更しています。log.md への追記を検討してください。" >&2
+for dir in adr chats notes reports; do
+  docs=$(printf '%s\n' "$changed" \
+    | grep -E "^${dir}/[^/]+\.md$" \
+    | grep -vE '/(index|log)\.md$' || true)
+  if [ -n "$docs" ] && ! printf '%s\n' "$changed" | grep -qx "${dir}/log.md"; then
+    echo "pre-commit: ${dir}/ の文書を変更しています。${dir}/log.md への追記を検討してください。" >&2
+  fi
+done
+
+ops=$(printf '%s\n' "$changed" \
+  | grep -E '^(AGENTS\.md|README\.md|index\.md|scripts/|\.githooks/|\.github/|templates/)' || true)
+if [ -n "$ops" ] && ! printf '%s\n' "$changed" | grep -qx 'log.md'; then
+  echo "pre-commit: リポジトリ全体の変更です。log.md への追記を検討してください。" >&2
 fi
