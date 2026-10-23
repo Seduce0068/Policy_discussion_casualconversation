@@ -5,5 +5,6 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [ナノカーボン半導体は2030年代後半に量産されるか](2026-10-23-nanocarbon-semiconductor-mass-production.md) | draft | CNTトランジスタの最新成果と量産ボトルネックを整理し、2030年代後半の商用化を先端ロジックとニッチ用途に分けて評価した |
 | [スタディサプリ売却と動画学習の使いにくさ](2026-10-20-studysapuri-sale-and-video-learning.md) | draft | スタディサプリ売却の報道を起点に、動画中心の教材設計が継続学習に弱い理由と改善案を整理した |
 <!-- okf-index:end -->
