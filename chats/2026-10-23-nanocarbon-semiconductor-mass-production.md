@@ -1,11 +1,12 @@
 ---
 type: Chat
 title: "ナノカーボン半導体は2030年代後半に量産されるか"
-description: "CNTトランジスタの最新成果と量産ボトルネックを整理し、2030年代後半の商用化を先端ロジックとニッチ用途に分けて評価した"
+description: "CNTとグラフェンナノリボンの最新成果、NRAMの原理相違による頓挫を整理し、2030年代後半の商用化を評価した"
 tags:
   - chat
   - semiconductor
   - carbon-nanotube
+  - graphene
 generated:
   by: opencode
   at: "2026-10-23T12:43:23+09:00"
@@ -92,8 +93,8 @@ status: "draft"
 - RF/THz: 1 THz級のfmax。6G/THz通信のニッチ。InP系との競合は残る。
 - 量子: C12がCNT量子プロセッサのロードマップを2026年に公表。
 - フィルム/TFT: フレキシブル、ディスプレイ、塗布型エレクトロニクス。
-- 逆に、NRAMはNanteroが2024年に事業停止。CNTメモリの商用化は
-  技術以前に事業化の難しさを示す事例になった。
+- 逆に、NRAMはNanteroが2024年に事業停止。加えて、日本ゼオンのNEDO案件も
+  2024年度末に中止。CNTメモリは事業化と原理の両面で難しさを示した。
 
 ## タイムラインと確率
 
@@ -128,6 +129,59 @@ status: "draft"
 - 「ナノカーボン半導体」を先端ロジックの物語として追うと裏切られるが、
   材料・部品の物語として追うと着実に進んでいる。
 
+## 追記: グラフェンナノリボンとNRAMの原理問題
+
+### グラフェンナノリボン（GNR）
+
+- GNRはグラフェンを数nm幅の帯状に切ったもの。幅とエッジ構造でバンドギャップを
+  制御できる。アームチェア型は幅Nで3つの族に分かれ、9-AGNRや13-AGNRが
+  半導体になる。
+- 利点: 原子レベルで平坦、高移動度、バンドギャップを設計できる、放射線耐性。
+- 課題:
+  - 合成: ボトムアップ（Ullmann結合）は原子精度が高いが、金属基板上でしか
+    作れず、ウェハへの転写が必要。長さは数十nm程度。
+  - 幅・エッジ制御: 1原子の幅差でバンドギャップが変わる。エッジ欠陥、酸化、
+    水素終端が特性を支配する。
+  - コンタクト: 準1次元物質の端に低抵抗コンタクトを付けるのが難しい。
+  - 密度・配向: CNTよりさらに難しい。単一デバイスの研究が主流。
+  - 計測・信頼性: 原子精度の評価と長期安定性のデータが不足。
+- 現状: 2026-02のNature Reviews Materialsレビューは、高移動度と調整可能な
+  バンドギャップを評価しつつ、精密な評価、クリーンな転写、信頼できる
+  電気的コンタクトを課題として挙げる。2024年には9-AGNR FETの長期安定性、
+  2023年にはh-BN封止のエッジコンタクトが報告された。2026年には放射線耐性や
+  ツイスト制御の報告もあるが、いずれも単一デバイス・小規模。
+- 評価: 先端ロジックの量産はCNTよりさらに遠い。2039年までの確率は2〜5%程度。
+  放射線耐性、センサー、量子、極低電力のニッチなら可能性はある。
+
+### NRAMの「原理が違った」件
+
+- 2025-05-30、経済産業省はNEDO GI基金のNRAM開発を2024年度末で中止すると発表。
+  日本ゼオン、Nantero、富士通セミコンダクターメモリソリューション（現RAMXEED）、
+  産総研、広島大学などが参画。当初は2021〜2030年度、総事業費約91億円、
+  助成約56億円の計画だった。
+- 当初の想定: CNT同士の接触・分離（静電引力とファンデルワールス接着）による
+  機械的な抵抗変化。高速・不揮発・低電力でDRAM代替を狙った。
+- 実際: 動作原理と故障原因を調べると、ReRAMと同様の抵抗変化機構だった。
+  書き換え回数の限界は約10^6回で、DRAM並みの10^12回には届かない。
+- 2024-12に中止を決定。NEDO委員の助言で原理解明を前倒ししたことが、
+  早期中止につながった。これは「原理を早く解明する」ことの成功例でもある。
+- 教訓:
+  - 初期の「原理」は、理想化された単一デバイスのI-Vから作った仮説にすぎない。
+  - 実デバイスでは、界面準位、欠陥、ジュール熱、酸化、電極金属の移動など、
+    別の機構が支配することがある。
+  - 製品化の前に、温度依存性、面積依存性、エンデュランス、リテンション、
+    ばらつき、故障解析をセットで示す「メカニズム・ゲート」が必要。
+  - 単一デバイスのデモと、量産デバイスの支配機構は別物である。
+
+### 評価への影響
+
+- GNRを加えても、2030年代後半の先端ロジック量産という結論は変わらない。
+  むしろGNRはCNTより製造成熟度が低く、確率は下がる。
+- CNTはGNRより先に「配向アレイ」「コンタクト」「BEOL低温プロセス」の
+  実証が進んでいる。炭素系で最初に量産に近づくのはCNT。
+- ただし、CNTもGNRも、次のゲートは「原理の説明」ではなく
+  「量産スケールでの支配機構の特定」になる。
+
 ## 参照
 
 - [imec 2026 roadmap（Tom's Hardware、2026-06-29）](https://www.tomshardware.com/tech-industry/semiconductors/imecs-2026-roadmap-details-0-3nm-nodes-by-2038-cfet-transistors-become-viable-at-0-7nm-company-redefines-moores-law-as-cell-sizes-gain-importance-for-density)
@@ -145,3 +199,11 @@ status: "draft"
 - [EUVペリクル市場調査（2026-03）](https://www.knowledge-sourcing.com/report/euv-pellicle-market)
 - [JST ALCA-Next バンドル型CNTトランジスタ（2025-2028）](https://projectdb.jst.go.jp/grant/JST-PROJECT-25137101/)
 - [SemiEngineering "Chasing After Carbon Nanotube FETs"（2021-03-18）](https://semiengineering.com/chasing-after-carbon-nanotube-fets)
+- [NRAM開発中止（マイナビ、2025-06-02）](https://news.mynavi.jp/techplus/article/20250602-3343340)
+- [NRAM開発中止の背景（ニュースイッチ、2025-05-30）](https://newswitch.jp/p/45868)
+- [GNRレビュー（ETH Zurich、2026-02）](https://ee.ethz.ch/news-and-events/d-itet-news-channel/2026/02/the-future-of-nanoelectronics-new-insights-into-graphene-nanoribbons-in-nature-reviews-materials.html)
+- [GNRエッジコンタクト（ACS Nano、2023）](https://pubmed.ncbi.nlm.nih.gov/37578964)
+- [9-AGNR FETの長期安定性（2024）](https://www.osti.gov/servlets/purl/2469669)
+- [GNRの材料科学課題（ACS Nano、2021）](https://pubs.acs.org/doi/abs/10.1021/acsnano.0c07835)
+- [GNRレビュー（Springer、2024）](https://link.springer.com/article/10.1007/s44214-024-00050-8)
+- [GNRの放射線耐性（phys.org、2026-07）](https://phys.org/news/2026-07-graphene-nanoribbons-survive-gamma-revealing.html)
