@@ -1,5 +1,11 @@
 # 雑談更新履歴
 
+## 2026-10-24
+
+- 13:39 - [My Invisalign アプリの信頼性](2026-10-24-invisalign-app-reliability.md)
+  を追加。Virtual Care の「順調です」が CDS の限定的な判定であること、
+  奥歯検出の失敗が公式に想定されていること、コミュニティの運用差を整理した。
+
 ## 2026-10-23
 
 - 21:04 - [GAS の Todo アプリ](2026-10-23-gas-todo-app-on-sheets.md) に双方向同期の
