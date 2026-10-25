@@ -4,6 +4,7 @@
 
 - 23:20 - [opencodego モデルルーティング調査報告](2026-10-25-opencodego-model-routing.md) を追加。
 - 23:50 - 学習利用許容方針を受け、general / arch / ops-reviewer を `muse-spark-1.3-contributor` へ切替。コンソールのプライバシー設定有効化を要実施事項として追記。
+- 23:26 - 直近 24h の実測（pro 57 req / $0.53 への急増、muse-spark 0 req）を反映し、実施状況セクションを未確認として更新。
 
 ## 2026-10-21
 
