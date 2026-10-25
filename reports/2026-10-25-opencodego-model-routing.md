@@ -106,6 +106,8 @@ effort 制御。精度の定量的検証は残課題として第 8 節に記載�
 | `arch-reviewer` | `opencode-go/muse-spark-1.3-contributor` | contributor |
 | `ops-reviewer` | `opencode-go/muse-spark-1.3-contributor` | contributor |
 | `security-reviewer` | `opencode-go/deepseek-v4-pro#high` | pro |
+| `test-author` | `opencode-go/deepseek-v4.1-flash` | flash |
+| `test-reviewer` | `opencode-go/muse-spark-1.3-contributor` | contributor |
 
 ### Muse Spark Contributor 採用の判断
 
@@ -123,6 +125,19 @@ $0.002、月間枠 $60）を出力量の多い 3 役割に採用した。deepsee
   on request data」を有効にしないとリクエストが拒否される
 - 地域制限は日本からは問題なし（Meta の Restricted Territories に
   日本は含まれず、モデル固有制限は Muse Image のみ）
+
+### テスト系エージェントの設計（追加）
+
+テストを「生成」「実行」「レビュー」に分解し、次の割り当てとした。
+
+- **`test-author`（生成）** — `opencode-go/deepseek-v4.1-flash`。
+  テスト仕様書・テストコード・テストデータの生成を担当。edit 許可・
+  shell 禁止。コード生成の品質実績がある flash を割当
+- **`test-reviewer`（レビュー）** — `opencode-go/muse-spark-1.3-contributor`。
+  読み取り専用で既存 3 レビュアーと同一権限・同一モデル階層
+- **テスト実行は親エージェントの責務** — `AGENTS.md` の
+  「決定論的検証 (compile、lint、test) は親が実行する」方針に従い、
+  実行系サブエージェントは作らない
 
 ### グローバルデフォルトを flash に変更した理由
 
@@ -216,9 +231,12 @@ $0.002、月間枠 $60）を出力量の多い 3 役割に採用した。deepsee
 | `agents/arch-reviewer.md` | `model: opencode-go/muse-spark-1.3-contributor` |
 | `agents/ops-reviewer.md` | 同上 |
 | `agents/security-reviewer.md` | `model: opencode-go/deepseek-v4-pro#high` |
+| `agents/test-author.md`（追加） | `model: opencode-go/deepseek-v4.1-flash` |
+| `agents/test-reviewer.md`（追加） | `model: opencode-go/muse-spark-1.3-contributor` |
 
 コミット: `1018016`（割り当て）、`a58b501`（グローバルデフォルト変更）、
-`eb725f9`（muse-spark contributor への切替）。
+`eb725f9`（muse-spark contributor への切替）、`1a42644`（テスト系
+エージェント追加）。
 
 ## 実施状況: コンソールのプライバシー設定（未確認）
 
