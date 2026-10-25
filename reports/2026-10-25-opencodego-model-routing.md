@@ -1,0 +1,196 @@
+---
+type: Report
+title: "opencodego モデルルーティング調査報告: サブエージェント別割り当て"
+description: "OpenCode Go 加入環境の全モデル候補をコスト・速度・精度・役割適正の4軸で評価し、サブエージェント5種とグローバルデフォルトのモデル割り当てを決定・適用した調査報告。"
+tags:
+  - opencode
+  - model-routing
+  - cost-optimization
+  - subagent
+generated:
+  by: opencode
+  at: "2026-10-25T23:17:11+09:00"
+status: review
+---
+
+## 目的と範囲
+
+opencodego（OpenCode Go）加入により利用可能になった多数のモデルを、
+サブエージェントの役割ごとに割り当て、開発効率・トークン消費・コストを
+最適化する。本報告は選定の根拠、採用・不採用の判断、適用結果、残課題を
+記録する。
+
+## 調査方法とデータソース
+
+| データ | ソース | 種別 |
+| --- | --- | --- |
+| 30 日間の実測使用量 | `opencode_console.get_usage`（リクエスト数・トークン・コスト） | 一次情報 |
+| モデルカタログと単価 | `opencode models` / `tools.opencode.models`（全プロバイダ分） | 一次情報 |
+| Go プラン料金・上限 | [OpenCode Go 公式ガイド](https://opencode.ai/v2/docs/console/go) | 一次情報 |
+| サブエージェント定義 | `~/.config/opencode/agents/*.md` の役割・権限・出力形式 | 一次情報 |
+| エージェント設定仕様 | [OpenCode V2 Agents ガイド](https://opencode.ai/v2/docs/agents) | 一次情報 |
+
+## 実測ベースの現状
+
+30 日間の実測は次のとおり。
+
+| 指標 | 値 |
+| --- | --- |
+| 総リクエスト数 | 9,202 |
+| 総コスト | $2.06 |
+| キャッシュリード | 1.29B トークン（入力の約 25 倍） |
+| `opencode-go/deepseek-v4.1-flash` | 1,133 req / $2.03（全コストの 98%） |
+| `opencode-go/deepseek-v4-pro` | 3 req / $0.04 |
+| 無料モデル群（`*-free`） | 約 8,000 req / $0 |
+
+導出される事実:
+
+- コストの実勢は月 $2 台であり、Go プラン（$10/月）のモデル別月間枠
+  （例: `deepseek-v4.1-flash` は $80/月）に対して大きな余裕がある
+- キャッシュリードがトークン量の支配因子であり、**キャッシュリード単価が
+  モデル選定の最重要指標**
+- `deepseek-v4.1-flash` は既に 30 日間の実運用で主力として機能しており、
+  実証済みのワークホースである
+
+## 評価軸ごとの根拠と強度
+
+選定は 4 軸で行った。各軸の根拠の強度を明示する。
+
+### コスト（根拠: 強）
+
+実測使用量と公式料金表の定量的照合に基づく。キャッシュリード単価
+（$/1M）とモデル別月間枠を比較対象とした。
+
+### 役割適正（根拠: 強）
+
+各サブエージェントのシステムプロンプト・権限（読み取り専用か否か）・
+トークン消費パターンを分析して割り当てた。探索・レビュー系は入力
+（読み込み）支配、親エージェントは統合判断が主責務。
+
+### 速度（根拠: 中）
+
+レイテンシの自前計測は未実施。根拠は (1) Go カタログ自体が
+「OpenCode チームが coding agent 用途でテスト・ベンチマーク済みの
+組み合わせ」という公式の選定表明、(2) flash 系モデルが軽量・低レイテンシ
+設計であることの間接的根拠、(3) 実測 1,133 req の処理実績。
+
+### 精度（根拠: 中）
+
+自前ベンチマークは未実施。根拠は (1) Go 公式のベンチマーク選定表明、
+(2) モデル命名の性能階層（flash < pro）、(3) variant による reasoning
+effort 制御。精度の定量的検証は残課題として第 8 節に記載する。
+
+## 決定事項
+
+### 割り当て表
+
+| 対象 | モデル | 階層 |
+| --- | --- | --- |
+| グローバルデフォルト（`build` 親） | `opencode-go/deepseek-v4.1-flash` | flash |
+| `explore` | `opencode/deepseek-v4.1-flash-free` | 無料 |
+| `general` | `opencode-go/deepseek-v4.1-flash` | flash |
+| `arch-reviewer` | `opencode-go/deepseek-v4.1-flash` | flash |
+| `ops-reviewer` | `opencode-go/deepseek-v4.1-flash` | flash |
+| `security-reviewer` | `opencode-go/deepseek-v4-pro#high` | pro |
+
+### グローバルデフォルトを flash に変更した理由
+
+当初案では無料モデル（`opencode/deepseek-v4.1-flash-free`）をデフォルトに
+残す判断だったが、次の理由で Go 版 flash へ変更した。
+
+- プライマリエージェントは統合判断を担い、無料モデルの rate limit や
+  品質のばらつきがセッション全体のボトルネックになる
+- `deepseek-v4.1-flash` は実測で主力実績があり、コスト増分は
+  現ペースから見て月 $2〜4 程度に収まる
+- 月間枠 $80 に対し実測は 2.5% 使用であり、ピーク時間帯の 2 倍価格を
+  考慮しても枯渇リスクは低い
+- 設計・統合判断など高難度タスクでは、セッション単位で
+  `opencode-go/deepseek-v4-pro` を手動選択する運用を併用する
+
+## 候補モデルの比較と不採用理由
+
+### opencode-go 内の不採用モデル
+
+| モデル | 単価（$ in/out） | 不採用理由 |
+| --- | --- | --- |
+| `deepseek-v4-pro` | 0.66 / 1.98 | flash の 4.4 倍。月間枠 $15 と小さく、レビュー頻度が高い役割では枯渇リスク。`security-reviewer` のみ採用 |
+| `glm-5.3-flash` | 0.15 / 0.50 | キャッシュリード $0.03 が deepseek flash の 10 倍。読み込み型タスクで不利 |
+| `glm-5.3` | 1.40 / 4.40 | コスト高。月間枠 $15 |
+| `qwen3.8-flash` | 0.15 / 0.47 | キャッシュリード $0.016（5 倍）。月間枠 $30 と小さい |
+| `qwen3.8-max` | 2.00 / 6.00 | コスト高。月間枠 $15 |
+| `qwen3.7-plus` | 0.40 / 1.60 | flash と pro の中間で、明確な適用役割がない |
+| `minimax-m3.1-flash` | 0.15 / 0.60 | キャッシュリード $0.015。月間枠 $20 と小さい |
+| `minimax-m3` | 0.30 / 1.20 | 中間帯。flash で足りる役割に割高 |
+| `mimo-v2.6-flash` | 0.14 / 0.28 | 単価は最安級の有力候補だが、自環境での実測実績ゼロ。実証済みの deepseek flash を優先。再評価候補として残す |
+| `mimo-v2.5` / `mimo-v2.5-pro` | 0.14 / 0.28 ほか | 旧世代。V2.6 系が存在するため不採用 |
+| `kimi-k3.1-pro` | 2.00 / 10.00 | コスト高。月間枠 $15 |
+| `kimi-k2.7-code` | 0.95 / 4.00 | code 特化だがコスト中間。既存役割に必要な優位性なし |
+| `claude-haiku-5-5` | 0.10 / 0.50 | 入力単価は最安級だが、月間枠 $15 と小さい |
+| `gpt-6-luna` | 0.10 / 0.50 | 同上。実測も 7 req とほぼ未使用 |
+| `gemini-4-argon` | 2.00 / 10.00 | コスト高（50% 割引期間でも $2/$10） |
+| `grok-4.7` | 2.00 / 6.00 | コスト高。月間枠 $15 |
+| `step-5-preview` | 1.00 / 2.70 | コスト高。preview 段階 |
+| `hy4-preview` / `hy3` | 0.83 / 2.50 ほか | コスト高め。実績なし |
+| `longcat-2.0` | 0.30 / 1.20 | 中間帯。明確な適用役割がない |
+| `muse-spark-1.3-contributor` | 0.10 / 0.20 | 出力単価は最安級だが、プロンプトが Meta の学習に利用される（training: Yes）。プライバシー方針と不整合 |
+| `beam-free` | 無料 | 期間限定・地域制限あり。恒久運用の前提にできない |
+| `iceman-contributor-free` | 無料 | 品質未検証。explore 用途の無料層は実績のある deepseek free で統一 |
+
+### 無料モデル群（`opencode` プロバイダ）
+
+`deepseek-v4.1-flash-free` を `explore` に採用。他（`glm-5.3-flash-free`、
+`minimax-m3.1-flash-free`、`nemotron-3-ultra-free` など）は実測でも利用
+実績があるが、無料層の役割を explore に集約するため、プライマリ・レビュー
+系には不採用。rate limit と品質のばらつきが主因。
+
+### 他プロバイダ（agentrouter / orcarouter / ollama / console-*）
+
+| プロバイダ | 不採用理由 |
+| --- | --- |
+| `agentrouter` | 別ゲートウェイのサブスク（`AGENTIC_API_KEY`）。opencodego と二重管理になる。現状定義済みのため障害時のフォールバックとして温存 |
+| `orcarouter` | 同上。`gpt-5.6-sol` のみで冗長 |
+| `ollama`（`gemma4:4b` / `gemma4:26b`） | Termux 環境での性能・安定性が不確実。外部送信不可の要件があるタスク限定で検討 |
+| `console-openai` など | 従量課金でコスト管理が Go の定額枠より複雑。Go で足りる役割には使わない |
+
+## 制約とリスク
+
+- **ピーク価格**: DeepSeek 系は平日 01:00–04:00 / 06:00–10:00 UTC
+  （日本時間 10:00–13:00 / 15:00–19:00）が 2 倍。長時間タスクは時間帯を
+  選ぶと実質コスト半減
+- **モデル別月間枠**: 枠はモデルごとに独立。`security-reviewer` の
+  `deepseek-v4-pro` は月間 $15 と小さく、レビュー頻度の監視が必要
+- **DeepSeek の ZDR 契約**: 月次更新（現契約は 2026-10-31 まで）。契約
+  失効時のプライバシー影響を追跡する
+- **上限到達時**: Go の上限到達後は無料モデルへフォールバック可能
+  （公式明記）。コンソール残高との併用（Extra Usage）は未設定
+
+## 残課題: 速度・精度の定量的検証
+
+現時点の選定は速度・精度について間接的根拠に依存する。次の方法で
+定量化を計画する。
+
+1. **同一レビュータスクの A/B 比較** — 同一 diff を
+   `deepseek-v4.1-flash` と `glm-5.3-flash`・`mimo-v2.6-flash` でレビュー
+   させ、検出数・誤検知数・所要時間を計測する
+2. **レイテンシ計測** — `opencode run --model <m> ...` で同一プロンプトを
+   各モデルに投げ、TTFT・総時間を比較する
+3. **mimo-v2.6-flash の再評価** — 単価最安級のため、上記結果次第で
+   flash 層の置換を検討する
+
+## 適用済み変更
+
+| ファイル | 変更 |
+| --- | --- |
+| `opencode.jsonc`（グローバル） | デフォルトモデルを `opencode-go/deepseek-v4.1-flash` に変更。`explore` / `general` のモデルを追加 |
+| `agents/arch-reviewer.md` | `model: opencode-go/deepseek-v4.1-flash` |
+| `agents/ops-reviewer.md` | 同上 |
+| `agents/security-reviewer.md` | `model: opencode-go/deepseek-v4-pro#high` |
+
+コミット: `1018016`（割り当て）、`a58b501`（グローバルデフォルト変更）。
+
+## 参照
+
+- [OpenCode Go ガイド](https://opencode.ai/v2/docs/console/go)
+- [OpenCode V2 Agents](https://opencode.ai/v2/docs/agents)
+- [OpenCode V2 Models](https://opencode.ai/v2/docs/models)
+- [OpenCode V2 Config](https://opencode.ai/v2/docs/config)
