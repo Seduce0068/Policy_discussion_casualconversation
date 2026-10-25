@@ -1,5 +1,11 @@
 # 雑談更新履歴
 
+## 2026-10-25
+
+- 19:15 - [Meta のパーソナルエージェント Muse](2026-10-25-meta-muse-personal-agent.md)
+  を追加。日本提供開始の機能・課金・Secure VM と Sentinel の統制、0-day と
+  共有リンク列挙の事象を整理し、初期設定の確認点をまとめた。
+
 ## 2026-10-24
 
 - 13:39 - [My Invisalign アプリの信頼性](2026-10-24-invisalign-app-reliability.md)

@@ -5,6 +5,7 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [Meta のパーソナルエージェント Muse を入れてみた](2026-10-25-meta-muse-personal-agent.md) | draft | 日本で提供開始された Muse の機能・課金・隔離アーキテクチャと、既知のセキュリティ事象から初期設定の確認点を整理した |
 | [My Invisalign アプリの「順調です」とカメラ認識をどう見るか](2026-10-24-invisalign-app-reliability.md) | draft | Virtual Care の判定が何を意味するか、公式IFU・アプリレビュー・Redditの事例から整理した |
 | [GAS で 2 時間半のスプレッドシート原本 Todo アプリ](2026-10-23-gas-todo-app-on-sheets.md) | draft | スプレッドシートを原本にフォーム登録・Tasks 双方向同期・退避寄りの競合回避で組み上げた小規模 Todo の設計を整理した |
 | [ナノカーボン半導体は2030年代後半に量産されるか](2026-10-23-nanocarbon-semiconductor-mass-production.md) | draft | CNTとグラフェンナノリボンの最新成果、NRAMの原理相違による頓挫を整理し、2030年代後半の商用化を評価した |
