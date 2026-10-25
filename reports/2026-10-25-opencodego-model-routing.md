@@ -88,10 +88,27 @@ effort 制御。精度の定量的検証は残課題として第 8 節に記載�
 | --- | --- | --- |
 | グローバルデフォルト（`build` 親） | `opencode-go/deepseek-v4.1-flash` | flash |
 | `explore` | `opencode/deepseek-v4.1-flash-free` | 無料 |
-| `general` | `opencode-go/deepseek-v4.1-flash` | flash |
-| `arch-reviewer` | `opencode-go/deepseek-v4.1-flash` | flash |
-| `ops-reviewer` | `opencode-go/deepseek-v4.1-flash` | flash |
+| `general` | `opencode-go/muse-spark-1.3-contributor` | contributor |
+| `arch-reviewer` | `opencode-go/muse-spark-1.3-contributor` | contributor |
+| `ops-reviewer` | `opencode-go/muse-spark-1.3-contributor` | contributor |
 | `security-reviewer` | `opencode-go/deepseek-v4-pro#high` | pro |
+
+### Muse Spark Contributor 採用の判断
+
+プロンプト・補完の学習利用は許容する方針（ユーザー判断）のため、
+`muse-spark-1.3-contributor`（input $0.10 / output $0.20 / cache read
+$0.002、月間枠 $60）を出力量の多い 3 役割に採用した。deepseek flash 比で
+出力単価が 1/3 であり、レビューレポートや調査結果のような出力支配型
+タスクで最大の削減効果がある。
+
+採用にあたっての前提条件:
+
+- **コンソールのプライバシー設定で有効化が必須**。Go ガイドによると
+  「paid endpoints that train on request data」はデフォルトでブロック
+  されており、`Settings › Privacy` から「Allow paid endpoints that train
+  on request data」を有効にしないとリクエストが拒否される
+- 地域制限は日本からは問題なし（Meta の Restricted Territories に
+  日本は含まれず、モデル固有制限は Muse Image のみ）
 
 ### グローバルデフォルトを flash に変更した理由
 
@@ -132,7 +149,7 @@ effort 制御。精度の定量的検証は残課題として第 8 節に記載�
 | `step-5-preview` | 1.00 / 2.70 | コスト高。preview 段階 |
 | `hy4-preview` / `hy3` | 0.83 / 2.50 ほか | コスト高め。実績なし |
 | `longcat-2.0` | 0.30 / 1.20 | 中間帯。明確な適用役割がない |
-| `muse-spark-1.3-contributor` | 0.10 / 0.20 | 出力単価は最安級だが、プロンプトが Meta の学習に利用される（training: Yes）。プライバシー方針と不整合 |
+| `muse-spark-1.3-contributor` | 0.10 / 0.20 | **採用**（general / arch / ops-reviewer）。学習利用は許容方針のため、出力単価最安級の本モデルを出力支配型 3 役割に割当 |
 | `beam-free` | 無料 | 期間限定・地域制限あり。恒久運用の前提にできない |
 | `iceman-contributor-free` | 無料 | 品質未検証。explore 用途の無料層は実績のある deepseek free で統一 |
 
@@ -182,11 +199,24 @@ effort 制御。精度の定量的検証は残課題として第 8 節に記載�
 | ファイル | 変更 |
 | --- | --- |
 | `opencode.jsonc`（グローバル） | デフォルトモデルを `opencode-go/deepseek-v4.1-flash` に変更。`explore` / `general` のモデルを追加 |
-| `agents/arch-reviewer.md` | `model: opencode-go/deepseek-v4.1-flash` |
+| `agents/arch-reviewer.md` | `model: opencode-go/muse-spark-1.3-contributor` |
 | `agents/ops-reviewer.md` | 同上 |
 | `agents/security-reviewer.md` | `model: opencode-go/deepseek-v4-pro#high` |
 
-コミット: `1018016`（割り当て）、`a58b501`（グローバルデフォルト変更）。
+コミット: `1018016`（割り当て）、`a58b501`（グローバルデフォルト変更）、
+`eb725f9`（muse-spark contributor への切替）。
+
+## 要実施: コンソールのプライバシー設定
+
+`muse-spark-1.3-contributor` を有効にするには、ユーザーによるコンソール
+操作が 1 件必要。
+
+1. [OpenCode Console](https://opencode.ai/console) にログイン
+2. `Settings › Privacy` を開く
+3. 「Allow paid endpoints that train on request data」を有効化
+
+設定しない場合、muse-spark へのリクエストは拒否され、該当サブエージェント
+が失敗する。設定後は本割り当てがそのまま機能する。
 
 ## 参照
 
