@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 19:33 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。
+  有償サポートを必須としない方針を追記。
 - 19:26 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。
   JDK ディストリビューションを Azul Zulu 25（第一候補）と Amazon Corretto 25（代替）に決定。
 - 19:20 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。

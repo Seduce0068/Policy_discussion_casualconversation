@@ -333,6 +333,7 @@ status: "approved"
 - 移行はストラングラー方式とし、JBoss EAP は移行期間のみ維持する。
 - JDK は Azul Zulu 25（無償、2033年9月まで）を第一候補、
   Amazon Corretto 25（2032年10月まで）を代替とする。
+- 有償サポートは必須とせず、本番で SLA が必要になった時点で検討する。
 - 詳細と代替案の却下理由は
   [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
 
@@ -341,6 +342,7 @@ status: "approved"
 - EAP 8 を移行期間中に併用するか、EAP 7.4 ELS のみで進めるか。
 - 画面を Thymeleaf で統一するか、React を併用するか。
 - 帳票を JasperReports にするか、Excel テンプレートを維持するか。
+- 有償サポートの契約要否と、契約する場合のベンダー。
 - オンプレミスかクラウドか。
 - 内製かベンダーか。
 

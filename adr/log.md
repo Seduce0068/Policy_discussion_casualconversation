@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 19:33 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
+  有償サポートの位置づけを追記。
 - 19:26 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
   JDK ディストリビューションの選定を追加。
 - 19:20 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
