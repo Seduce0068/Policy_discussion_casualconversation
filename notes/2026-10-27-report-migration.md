@@ -46,6 +46,8 @@ PDF 出力が業務側の手作業になっている。
 
 - 帳票を「編集不要」「編集必要・定型」「編集必要・非定型」に分類する。
 - 編集不要の定型帳票は、システムが直接 PDF を生成する。Excel は廃止する。
+- 直接 PDF 生成の第一候補は Typst とする。テンプレートをテキストで管理でき、PDF の差分レビューができる。
+- Typst が向かない複雑な帳票は、JasperReports を使う。
 - 編集必要の定型帳票は、Excel テンプレートを維持し、システムが PDF に変換する。
 - 編集必要の非定型帳票は、Web の編集画面と PDF ダウンロードに移行する。
 - 現状維持は移行期だけとし、最終的には Excel の手作業をなくす。
@@ -55,6 +57,7 @@ PDF 出力が業務側の手作業になっている。
 
 | 用途 | 推奨 | 代替 | 備考 |
 | --- | --- | --- | --- |
+| テキストベースの帳票 | Typst | JasperReports | テンプレートを Git で管理、高速 |
 | 複雑な帳票 | JasperReports | BIRT | バンド、集計、サブレポート |
 | シンプルな PDF | OpenPDF | PDFBox | レイアウトをコードで制御 |
 | HTML ベースの帳票 | Thymeleaf + Flying Saucer | OpenHTMLtoPDF | CSS でレイアウト |
@@ -66,6 +69,7 @@ PDF 出力が業務側の手作業になっている。
 ## テスト
 
 - PDF のスナップショットを比較する。フォントと埋め込みで差分が出るため、許容差を設定する。
+- Typst のテンプレートは、JSON の入力データと PDF のスナップショットで検証する。
 - PDFBox でテキストを抽出し、記載事項を確認する。
 - フォントが埋め込まれているか確認する。
 - 改ページ、ヘッダ、フッタ、ページ番号を確認する。
@@ -85,6 +89,7 @@ PDF 出力が業務側の手作業になっている。
 
 ## QA に出す条件
 
+- Excel を噛ませる業務上の理由は何か。編集、承認、押印、配布のどれか。
 - 業務側の編集が必要か。
 - 編集は承認プロセスに組み込まれているか。
 - 法的な保存要件は何か。
@@ -98,6 +103,7 @@ PDF 出力が業務側の手作業になっている。
 - [レガシー Java のテスト方式とエビデンス運用](2026-10-27-test-strategy.md)
 - [設計書とソースの乖離分析と QA 管理](2026-10-27-gap-analysis-qa.md)
 - [ADR-002: Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md)
+- [Typst](https://typst.app/)
 - [JasperReports](https://community.jaspersoft.com/project/jasperreports-library)
 - [Apache POI](https://poi.apache.org/)
 - [LibreOffice](https://www.libreoffice.org/)
