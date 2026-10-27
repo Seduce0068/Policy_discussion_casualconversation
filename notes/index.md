@@ -5,6 +5,7 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [設計書とソースの乖離分析と QA 管理](2026-10-27-gap-analysis-qa.md) | draft | 設計書とソースの乖離を深刻度で分類し、意図が不明なものを QA として管理する方法を整理する。 |
 | [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) | approved | Seasar2 と JBoss EAP、Excel 設計書のレガシー Java 資産を、延命・段階移行・docs-as-code・CI 自動化で刷新する運用と開発手法を整理する。 |
 | [レガシー Java モダナイズの決定事項チェックリスト](2026-10-27-modernization-decision-checklist.md) | draft | Spring Boot + Doma 3 + Markdown 化を前提に、移行プロジェクトで決めるべき技術・データ・運用の項目を優先度別に整理する。 |
 | [レガシー Java のテスト方式とエビデンス運用](2026-10-27-test-strategy.md) | draft | Web アプリと Java GUI の両方を想定し、テスト仕様書、テストコード、エビデンス、フレームワーク選定を整理する。 |
