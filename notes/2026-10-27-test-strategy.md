@@ -159,14 +159,10 @@ status: "draft"
 - 成功時は状態スナップショットとアサーション結果だけを保存する。
 - 失敗時だけ、対象要素のスクリーンショットと DOM スナップショットを保存する。
 - 全画面キャプチャは避け、要素単位のキャプチャにする。
-- 画像形式は JPEG XL（.jxl）を既定とする。可逆圧縮で PNG より小さい。
-- Playwright は PNG で撮影し、cjxl で JPEG XL に変換する。
-- 画像比較は PNG で行う。比較ツールの JPEG XL 対応はまだ限られる。
-- GitHub と CI のアーティファクトビューアが JPEG XL を表示できるか確認する。
-  表示できない場合は、レビュー用に WebP を併置する。
-- Edge 155 は公式リリースノートに JPEG XL の記載がなく、実機でも未確認。
-  レビュー環境が Edge の場合は WebP を併置する。
-- 失敗時のデバッグ用に PNG も保存する。成功時は JPEG XL のみとする。
+- 画像形式は WebP を既定とする。PNG より小さく、主要ブラウザと GitHub で表示できる。
+- JPEG XL は採用しない。Edge の対応が公式に確認できず、レビュー環境での表示保証がないため。
+- Playwright は PNG で撮影し、WebP に変換する。比較は PNG で行う。
+- 失敗時のデバッグ用に PNG も保存する。成功時は WebP のみとする。
 - 成功時の保存期間は短く、失敗時は監査要件に合わせて長くする。
 - 画像の差分は保存せず、差分のメタデータだけを保存する。
 
@@ -212,7 +208,3 @@ status: "draft"
 - [Gatling](https://gatling.io/)
 - [Apache PDFBox](https://pdfbox.apache.org/)
 - [ISO/IEC/IEEE 29119](https://www.iso.org/standard/81291.html)
-- [Shipping JPEG XL in Chrome](https://developer.chrome.com/blog/jpeg-xl-in-chrome)
-- [Can I use: JPEG XL](https://caniuse.com/jpeg-xl)
-- [libjxl](https://github.com/libjxl/libjxl)
-- [Microsoft Edge 155 web platform release notes](https://learn.microsoft.com/en-us/microsoft-edge/web-platform/release-notes/155)
