@@ -159,7 +159,12 @@ status: "draft"
 - 成功時は状態スナップショットとアサーション結果だけを保存する。
 - 失敗時だけ、対象要素のスクリーンショットと DOM スナップショットを保存する。
 - 全画面キャプチャは避け、要素単位のキャプチャにする。
-- 画像は WebP か PNG に圧縮する。
+- 画像形式は JPEG XL（.jxl）を既定とする。可逆圧縮で PNG より小さい。
+- Playwright は PNG で撮影し、cjxl で JPEG XL に変換する。
+- 画像比較は PNG で行う。比較ツールの JPEG XL 対応はまだ限られる。
+- GitHub と CI のアーティファクトビューアが JPEG XL を表示できるか確認する。
+  表示できない場合は、レビュー用に WebP を併置する。
+- 失敗時のデバッグ用に PNG も保存する。成功時は JPEG XL のみとする。
 - 成功時の保存期間は短く、失敗時は監査要件に合わせて長くする。
 - 画像の差分は保存せず、差分のメタデータだけを保存する。
 
@@ -205,3 +210,6 @@ status: "draft"
 - [Gatling](https://gatling.io/)
 - [Apache PDFBox](https://pdfbox.apache.org/)
 - [ISO/IEC/IEEE 29119](https://www.iso.org/standard/81291.html)
+- [Shipping JPEG XL in Chrome](https://developer.chrome.com/blog/jpeg-xl-in-chrome)
+- [Can I use: JPEG XL](https://caniuse.com/jpeg-xl)
+- [libjxl](https://github.com/libjxl/libjxl)
