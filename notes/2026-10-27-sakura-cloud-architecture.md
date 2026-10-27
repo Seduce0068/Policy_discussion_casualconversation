@@ -50,7 +50,10 @@ status: "draft"
 
 - データベースアプライアンスの PostgreSQL は 15.18（2026年7月23日更新）。
   PostgreSQL 16、17、18 は提供されていない。
-- PostgreSQL 15 のサポートは 2027年11月まで。移行期間中にバージョンアップが必要。
+- 2027年11月は PostgreSQL コミュニティの PostgreSQL 15 の EOL。
+  さくらのクラウドのサポート期限は別途確認が必要。
+- さくらのクラウドは 2026年7月に PostgreSQL 14 から 15 に上げたばかりで、
+  バージョンアップのペースは遅い。次のメジャーバージョンの提供時期は未定。
 - PostgreSQL 18 を使う場合は、VM に自前で構築するか、Kubernetes 上で
   CloudNativePG を運用する。
 - AppRun は Kubernetes と Knative をベースにしたコンテナ実行基盤。
@@ -65,8 +68,11 @@ status: "draft"
 - まずは小規模構成で始める。VM、DB アプライアンス、ロードバランサー、
   オブジェクトストレージの組み合わせ。
 - アプリは Docker か Podman で動かし、GitHub Actions からデプロイする。
-- DB はデータベースアプライアンスの PostgreSQL 15 を使う。
-- PostgreSQL 18 が必要になった時点で、VM か Kubernetes + CloudNativePG に移す。
+- DB はデータベースアプライアンスの PostgreSQL 15 を使うか、VM に PostgreSQL 18 を
+  自前で構築するかを、運用体制とサポート期限で決める。
+- PostgreSQL 18 を必須とする場合は、VM か Kubernetes + CloudNativePG を選ぶ。
+- DB アプライアンスを使う場合、2027年11月のコミュニティ EOL までに
+  次のバージョンへ移行する計画を立てる。
 - エビデンス、バックアップ、ログはオブジェクトストレージに置く。
 - IaC は Terraform で管理する。
 - 監視は Prometheus と Grafana、ログは Loki を自前で構築する。
@@ -92,6 +98,8 @@ status: "draft"
 
 - リージョンは東京、大阪、石狩のどれか。
 - SLA とサポート体制はどうなっているか。
+- さくらのクラウドの PostgreSQL のサポート期限はいつまでか。
+- PostgreSQL 18 が必須か、15 で足りるか。
 - DB のバージョンアップ方針はどうなっているか。
 - バックアップの頻度と保持期間はどうするか。
 - ネットワークの閉域要件はあるか。
