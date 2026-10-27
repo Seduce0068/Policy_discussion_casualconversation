@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 22:55 - [移行先データベースの選定と最新トレンド](2026-10-27-database-selection.md) を追加。
+  PostgreSQL を第一候補とし、最新トレンド、比較、移行の注意を整理。
 - 22:00 - [Excel 生成と PDF 出力の帳票移行方針](2026-10-27-report-migration.md) を更新。
   Excel の必要性を QA に追加し、直接 PDF 生成の第一候補を Typst に変更。
 - 21:28 - [Excel 生成と PDF 出力の帳票移行方針](2026-10-27-report-migration.md) を追加。
