@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 20:02 - [レガシー Java モダナイズの決定事項チェックリスト](2026-10-27-modernization-decision-checklist.md) を更新。
+  人間が担う役割と、判断をボトルネックにしない進め方を追記。
 - 19:54 - [レガシー Java モダナイズの決定事項チェックリスト](2026-10-27-modernization-decision-checklist.md) を更新。
   初期セットアップの順序、出口条件、容量と解析の前提、現行機能の保証を追記。
 - 19:48 - [レガシー Java モダナイズの決定事項チェックリスト](2026-10-27-modernization-decision-checklist.md) を追加。
