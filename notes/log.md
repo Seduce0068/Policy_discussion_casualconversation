@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 19:48 - [レガシー Java モダナイズの決定事項チェックリスト](2026-10-27-modernization-decision-checklist.md) を追加。
+  設計の前提、データ、運用の残りの決定事項を優先度別に整理。
 - 19:43 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。
   JDK を Azul Zulu 25（無償版）に確定し、標準 API に限定する方針を追記。
 - 19:38 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。
