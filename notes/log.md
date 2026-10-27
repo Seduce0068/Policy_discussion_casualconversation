@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 18:52 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を更新。
+  Spring Boot 4.x + Doma 3、Excel の Markdown 化の決定を反映し、status を approved に変更。
 - 18:27 - [Seasar2・JBoss・Excel 設計書で構成されたレガシー Java のモダナイズ方針](2026-10-27-legacy-java-seasar2-jboss-modernization.md) を追加。
   Seasar2/JBoss EAP の寿命、移行方式、Excel 設計書の SSOT 化、CI 自動化、opencode 活用を整理。
 

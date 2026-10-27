@@ -11,16 +11,18 @@ tags:
 generated:
   by: opencode
   at: "2026-10-27T18:20:21+09:00"
-status: "draft"
+status: "approved"
 ---
 
 ## 結論
 
-- 推奨は「延命 + ストラングラー + フレームワーク移行」の併用。一括書き換えはしない。
+- 採用は「延命 + ストラングラー + Spring Boot 移行」の併用。一括書き換えはしない。
 - Seasar2（シーサー2）は 2016-09-26 に EOL。JBoss EAP 8 は Jakarta EE 10 であり、
   Seasar2 をそのまま載せることはできない。EAP 8 に移るなら Seasar2 の撤去が前提。
+- 移行先は Spring Boot 4.x + Doma 3、Excel 設計書は Markdown を SSOT とする。
+  詳細は [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
 - 短期は JBoss EAP 7.4 の ELS で延命し、新規・変更の多い機能から
-  Spring Boot + Doma/MyBatis の新サービスへ移す。
+  Spring Boot + Doma 3 の新サービスへ移す。
 - Excel 設計書は「正」の座を降ろす。テキストの単一情報源（SSOT）から
   Excel を生成する方向へ寄せる。
 - 自動化はテストとドキュメントの再生成から始める。CI ゲートを先に作り、
@@ -68,15 +70,15 @@ status: "draft"
 | ストラングラー | 機能単位で新サービスへ切り出す | リスク分散、段階リリース、並行稼働 | ルーティング、DB 共有、二重運用の設計が必要 | 大規模、変更頻度が偏る |
 | 再構築 | 業務プロセスから見直す | 最大の効果 | コスト・期間・リスクが最大 | 業務自体を変える場合 |
 
-### 推奨: 延命 + ストラングラー + フレームワーク移行
+### 採用: 延命 + ストラングラー + Spring Boot 移行
 
 - 延命: EAP 7.4 ELS を契約し、JDK 11 を維持する。Seasar2 は凍結し、
   新規機能を載せない。ELS の上限は 2030-12-31。JDK 11 自体のサポート期限は
   ベンダーごとに異なるため、契約前に確認する。
-- 新規・変更の多い機能: Spring Boot + Doma 3 または MyBatis の新サービス。
+- 新規・変更の多い機能: Spring Boot 4.x + Doma 3 の新サービス。
   Apache httpd / ALB / API Gateway でルーティングする。
-- 残存機能: 変更のタイミングで Spring Boot へ移す。EAP 8 に残す部分は
-  Seasar2 を捨て、CDI / JAX-RS / JSF の Jakarta EE 標準へ寄せる。
+- 残存機能: 変更のタイミングで Spring Boot へ移す。EAP 8 に残す部分も、
+  Seasar2 を捨てて Jakarta EE 標準に寄せ、最終的に Spring Boot へ統合する。
 - 最終的にランタイムを 1 つに寄せる。EAP と Spring Boot の二重運用は
   移行期間だけに限定する。
 - 優先順位は「変更頻度 × ビジネス価値 × 技術的リスク」で決める。
@@ -99,17 +101,17 @@ status: "draft"
 
 | 層 | 現状 | 移行先 | 備考 |
 | --- | --- | --- | --- |
-| 実行環境 | Java 8 | Java 21（EAP 8）/ Java 25（新規サービス） | EAP 8 のサポート構成は 17/21 |
-| AP サーバ | JBoss EAP 7.x | EAP 8.1 以降 / Spring Boot 埋め込み | EAP 8 は Jakarta EE 10 |
-| DI/AOP | Seasar2 | Spring DI / CDI | dicon を Java Config へ |
+| 実行環境 | Java 8 | Java 21（基本）/ Java 25（将来） | Spring Boot 4.x は Java 17 以上 |
+| AP サーバ | JBoss EAP 7.x | Spring Boot 4.x 埋め込み（EAP 8 は移行期間のみ） | EAP 8 は Jakarta EE 10 |
+| DI/AOP | Seasar2 | Spring DI（CDI は EAP 8 残存時） | dicon を Java Config へ |
 | Web | SAStruts / Struts | Spring MVC | JSP は Thymeleaf へ段階移行 |
-| O/R | S2Dao / S2JDBC | Doma 3 / MyBatis | 2-way SQL を再利用 |
+| O/R | S2Dao / S2JDBC | Doma 3 | 2-way SQL を再利用 |
 | 画面 | JSP | Thymeleaf / React | 画面単位で移行 |
-| バッチ | 独自バッチ（S2Container） | Spring Batch / Jakarta Batch | ジョブ定義を外部化 |
+| バッチ | 独自バッチ（S2Container） | Spring Batch（Jakarta Batch は EAP 8 残存時） | ジョブ定義を外部化 |
 | 帳票 | Excel / POI | JasperReports / テンプレート | PDF のスナップショットテスト |
 | ビルド | Ant / Maven | Maven / Gradle Wrapper | 再現性を最優先 |
 | テスト | 手動 | JUnit 5 / Testcontainers / Playwright | 特性テストから始める |
-| ドキュメント | Excel | Markdown / AsciiDoc / OpenAPI / DDL | SSOT を決めてから移す |
+| ドキュメント | Excel | Markdown / OpenAPI / DDL | Markdown を SSOT とする |
 | 可観測性 | ログファイル | OpenTelemetry / Micrometer | 相関 ID と構造化ログ |
 
 ### Seasar2 からの移行マッピング
@@ -119,8 +121,8 @@ status: "draft"
 | S2Container（dicon） | Spring DI / CDI | Bean 定義、スコープ、AOP。自動変換はテストで検証 |
 | S2AOP | Spring AOP / AspectJ | ポイントカットとアドバイスの対応 |
 | S2Transaction | `@Transactional` | 伝播属性とロールバック条件 |
-| S2Dao | Doma 3 / MyBatis | DAO インタフェースと 2-way SQL |
-| S2JDBC | Doma / Spring Data JDBC | 流れるインタフェースは書き換え |
+| S2Dao | Doma 3 | DAO インタフェースと 2-way SQL |
+| S2JDBC | Doma 3 | 流れるインタフェースは書き換え |
 | SAStruts | Spring MVC | Action / Form を Controller / Form へ |
 | S2Struts | Spring MVC | Struts 設定の移植 |
 | Teeda | JSF / Spring MVC | 画面遷移とコンポーネント |
@@ -132,10 +134,10 @@ status: "draft"
   スコープ、トランザクション伝播は手作業で検証する。
 - Doma 3 は S2Dao の DAO パターンと 2-way SQL を継承し、Seasar2 に依存しない。
   Java 17 以上が前提。
-- SQL 資産の再利用性が高いのは Doma。動的 SQL の柔軟性なら MyBatis。
+- SQL 資産の再利用性が高いため Doma 3 を採用する。動的 SQL が複雑な箇所は
+  Doma の DSL か MyBatis の併用を個別に判断する。既定は Doma 3 とする。
 - S2Dao の SQL ファイル名は `Dao名_メソッド名.sql`。Doma は `メソッド名.sql`。
   リネームは機械的にできるが、SQL コメントの文法は異なるため、変換はテストで検証する。
-- 判断基準は 2-way SQL の量、DB 依存 SQL の多さ、チームの習熟度。
 
 ### JBoss EAP 8 への移行
 
@@ -165,7 +167,7 @@ status: "draft"
 | バッチ | ジョブ定義（YAML） | 設計書 |
 | テスト | テストコード / Gherkin | テスト仕様書 |
 
-- Excel は「配布用ビュー」に限定する。正を Excel に戻さない。
+- Markdown を SSOT とし、Excel は「配布用ビュー」に限定する。正を Excel に戻さない。
 - どうしても Excel 編集が必要な領域は、正を Excel にしたまま `xlsx2csv` で
   テキスト化し、Git で差分を見えるようにしてから段階的に移す。
 - 変換の優先順位は、参照頻度が高い、変更頻度が高い、移行対象に近い、の順。
@@ -322,14 +324,21 @@ status: "draft"
 - 各 Phase のゲートは、テスト、性能、セキュリティ、カットオーバー判定。
 - ELS の上限 2030-12-31 から逆算し、Phase 3 の遅延を許容しない。
 
-## 判断が必要な点
+## 決定事項（2026-10-27）
 
-- EAP 8 を残すか、Spring Boot に統合するか。
-- Doma 3 か MyBatis か。
-- 画面を JSP 温存か、Thymeleaf / React か。
-- Excel を残すか、生成物化するか。
-- オンプレかクラウドか。
-- ELS を購入するか、即時移行か。
+- アプリケーション基盤は Spring Boot 4.x（Java 21、独立実行）とする。
+- O/R マッパーは Doma 3 とする。
+- Excel 設計書は Markdown を SSOT とし、Excel は生成物または移行期の入力に限定する。
+- 移行はストラングラー方式とし、JBoss EAP は移行期間のみ維持する。
+- 詳細と代替案の却下理由は
+  [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
+
+### 未決事項
+
+- EAP 8 を移行期間中に併用するか、EAP 7.4 ELS のみで進めるか。
+- 画面を Thymeleaf で統一するか、React を併用するか。
+- 帳票を JasperReports にするか、Excel テンプレートを維持するか。
+- オンプレミスかクラウドか。
 - 内製かベンダーか。
 
 ## リスク
@@ -356,6 +365,7 @@ status: "draft"
 - [What's new in JBoss EAP 8.0](https://developers.redhat.com/articles/2024/02/05/whats-new-jboss-enterprise-application-platform-8)
 - [EAP 8 Installation Methods](https://docs.redhat.com/en/documentation/red_hat_jboss_enterprise_application_platform/8.0/html/red_hat_jboss_enterprise_application_platform_installation_methods/assembly_adding-feature-packs-in-your-jboss-eap-installation-using-the-jboss-eap-installation-manager_default)
 - [Oracle Java SE Support Roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
+- [Spring Boot System Requirements](https://docs.spring.io/spring-boot/system-requirements.html)
 - [Spring Framework 6 baseline](https://spring.io/blog/2021/09/02/a-java-17-and-jakarta-ee-9-baseline-for-spring-framework-6)
 - [Jakarta EE 11](https://jakarta.ee/release/11)
 - [OpenRewrite Jakarta recipes](https://docs.openrewrite.org/recipes/java/migrate/jakarta/javaxresourcetojakartaresource)
@@ -364,3 +374,4 @@ status: "draft"
 - [Testcontainers](https://testcontainers.com/)
 - [OpenTelemetry](https://opentelemetry.io/)
 - [opencodego モデルルーティング調査報告](../reports/2026-10-25-opencodego-model-routing.md)
+- [ADR-002: Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md)
