@@ -44,6 +44,8 @@ status: "approved"
 5. 移行はストラングラー方式で行い、JBoss EAP は移行期間のみ維持する。
 6. 新規機能は最初から Spring Boot + Doma 3 で実装する。
 7. ドキュメントは docs-as-code とし、CI でリンク、構造、生成物の差分を検証する。
+8. JDK ディストリビューションは Azul Zulu 25 を第一候補とし、
+   Amazon Corretto 25 を代替とする。
 
 ### 理由
 
@@ -74,6 +76,28 @@ status: "approved"
 - LLM と opencode に渡しやすく、変換、要約、レビューの品質が安定する。
 - GitHub、opencode、静的サイト生成との相性がよい。
 - Excel は配布用ビューとして生成できるため、現場の閲覧手段は残せる。
+
+#### JDK ディストリビューションを選ぶ理由
+
+- 無償でセキュリティ更新が提供される期間を比較した。
+
+| JDK | 無償のセキュリティ更新 | 期限 | 備考 |
+| --- | --- | --- | --- |
+| Azul Zulu 25 | あり | 2033年9月 | 無償版は商用サポートを含まない |
+| Amazon Corretto 25 | あり | 2032年10月 | AWS の本番実績がある |
+| Eclipse Temurin 25 | あり | 2031年9月 | コミュニティ中立 |
+| Microsoft Build of OpenJDK 25 | あり | 2030年9月 | Azure 向け |
+| Oracle JDK 25 | 制限あり | 2028年9月 | 無償利用は個人・開発向け |
+| BellSoft Liberica 25 | 要確認 | 商用は 2034年3月 | 無償版の期間が不明確 |
+
+- Azul Zulu 25 を第一候補とする。無償期間が最も長く、主要プラットフォームを
+  サポートする。無償版はセキュリティ更新を含むが、商用サポートは含まない。
+- Amazon Corretto 25 を代替とする。無償期間は Zulu より約 1 年短いが、
+  AWS の本番環境での実績があり、ドロップイン置換が可能。
+- Eclipse Temurin 25 はコミュニティ中立性が高いが、無償期間は 2031年9月まで。
+- Oracle JDK 25 は無償更新が 2028年9月までで短く、採用しない。
+- ベンダーロックを避けるため、標準 API に限定し、CI で Zulu と Corretto の
+  マトリクスを回す。
 
 ### 代替案と却下理由
 
@@ -112,6 +136,7 @@ status: "approved"
 | 移行の長期化 | ELS 期限超過 | ストラングラー、機能フラグ、カナリア、2030 年からの逆算 |
 | Doma 3 の習熟 | 品質低下 | パイロットで 1 画面・1 バッチを実装し、型と規約を固める |
 | Spring Boot の追従 | 脆弱性・陳腐化 | Renovate、LTS 基準、四半期の更新 |
+| JDK ベンダーの方針変更 | セキュリティ更新の停止 | 標準 API に限定し、Zulu と Corretto を切り替え可能にする |
 | Excel 変換の誤り | 仕様漏れ | 行数・キー・サンプル値の突合、人間レビュー、差分ゼロ検証 |
 
 ### 実装方針
@@ -119,6 +144,8 @@ status: "approved"
 #### Spring Boot
 
 - Java 25 LTS。Spring Boot 4.1 系を基本とする。
+- JDK は Azul Zulu 25 を既定とし、CI で Amazon Corretto 25 も検証する。
+- Maven / Gradle の Toolchains で JDK を切り替え可能にする。
 - EAP 8 に残す部分は Java 21 とする。EAP 8 のサポート構成は JDK 17/21。
 - Spring MVC + Thymeleaf。画面は段階移行し、JSP は温存しない。
 - Spring Batch。バッチはジョブ定義を外部化する。
@@ -200,4 +227,8 @@ src/main/resources/META-INF/<DaoのFQCN>/<メソッド名>.sql
 - [Spring Boot System Requirements](https://docs.spring.io/spring-boot/system-requirements.html)
 - [Spring Framework 6 baseline](https://spring.io/blog/2021/09/02/a-java-17-and-jakarta-ee-9-baseline-for-spring-framework-6)
 - [JBoss EAP Product Life Cycles](https://access.redhat.com/product-life-cycles?product=Red+Hat+JBoss+Enterprise+Application+Platform)
+- [Azul Java Support Roadmap](https://www.azul.com/products/azul-support-roadmap/)
+- [Amazon Corretto FAQs](https://aws.amazon.com/corretto/faqs/)
+- [Adoptium Temurin Support](https://adoptium.net/support/)
+- [Microsoft Build of OpenJDK Support](https://learn.microsoft.com/en-us/java/openjdk/support)
 - [calamine](https://github.com/tafia/calamine)

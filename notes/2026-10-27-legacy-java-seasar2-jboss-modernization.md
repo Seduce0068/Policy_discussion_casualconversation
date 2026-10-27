@@ -102,7 +102,7 @@ status: "approved"
 
 | 層 | 現状 | 移行先 | 備考 |
 | --- | --- | --- | --- |
-| 実行環境 | Java 8 | Java 25 LTS（新規）/ Java 21（EAP 8 残存時） | Spring Boot 4.x は Java 17 以上、Java 27 まで |
+| 実行環境 | Java 8 | Java 25 LTS（新規）/ Java 21（EAP 8 残存時） | JDK は Zulu 25 / Corretto 25 |
 | AP サーバ | JBoss EAP 7.x | Spring Boot 4.x 埋め込み（EAP 8 は移行期間のみ） | EAP 8 は Jakarta EE 10 |
 | DI/AOP | Seasar2 | Spring DI（CDI は EAP 8 残存時） | dicon を Java Config へ |
 | Web | SAStruts / Struts | Spring MVC | JSP は Thymeleaf へ段階移行 |
@@ -331,6 +331,8 @@ status: "approved"
 - O/R マッパーは Doma 3 とする。
 - Excel 設計書は Markdown を SSOT とし、Excel は生成物または移行期の入力に限定する。
 - 移行はストラングラー方式とし、JBoss EAP は移行期間のみ維持する。
+- JDK は Azul Zulu 25（無償、2033年9月まで）を第一候補、
+  Amazon Corretto 25（2032年10月まで）を代替とする。
 - 詳細と代替案の却下理由は
   [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
 
@@ -353,6 +355,7 @@ status: "approved"
 | ELS 期限 | サポート切れ | 2030 年から逆算したロードマップ |
 | AI 変換の誤り | 障害 | コンパイル、テスト、差分、人間レビュー |
 | 人材不足 | 停滞 | ペア作業、ドキュメント化、外部支援 |
+| JDK ベンダーの方針変更 | セキュリティ更新の停止 | 標準 API に限定し、Zulu と Corretto を切り替え可能にする |
 | ライセンス | コスト | JDK / EAP の契約確認 |
 
 ## 参照
@@ -367,6 +370,9 @@ status: "approved"
 - [EAP 8 Installation Methods](https://docs.redhat.com/en/documentation/red_hat_jboss_enterprise_application_platform/8.0/html/red_hat_jboss_enterprise_application_platform_installation_methods/assembly_adding-feature-packs-in-your-jboss-eap-installation-using-the-jboss-eap-installation-manager_default)
 - [Oracle Java SE Support Roadmap](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 - [Spring Boot System Requirements](https://docs.spring.io/spring-boot/system-requirements.html)
+- [Azul Java Support Roadmap](https://www.azul.com/products/azul-support-roadmap/)
+- [Amazon Corretto FAQs](https://aws.amazon.com/corretto/faqs/)
+- [Adoptium Temurin Support](https://adoptium.net/support/)
 - [Spring Framework 6 baseline](https://spring.io/blog/2021/09/02/a-java-17-and-jakarta-ee-9-baseline-for-spring-framework-6)
 - [Jakarta EE 11](https://jakarta.ee/release/11)
 - [OpenRewrite Jakarta recipes](https://docs.openrewrite.org/recipes/java/migrate/jakarta/javaxresourcetojakartaresource)
