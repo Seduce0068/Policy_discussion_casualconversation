@@ -26,6 +26,7 @@ status: "approved"
 - Seasar2 は 2016-09-26 に EOL。最終リリースは 2.4.48（2014-12）。
 - JBoss EAP 7.x はフルサポートが 2023-12-31 に終了し、メンテナンスも
   2025-06-30 に終了している。ELS の上限は 2030-12-31。
+- Java 25 LTS は 2025-09-16 にリリースされた最新の LTS。
 - JBoss EAP 8 は Jakarta EE 10 で、`javax.*` から `jakarta.*` へ namespace が変わる。
   Seasar2 をそのまま載せることはできない。
 - Excel 設計書はバイナリで差分が読めず、レビュー、検索、自動化、監査の阻害要因になる。
@@ -36,7 +37,8 @@ status: "approved"
 ### 決定
 
 1. 移行先のアプリケーション基盤は Spring Boot 4.x とする。
-2. 実行環境は Java 21 を基本とし、独立実行（埋め込み Tomcat）を前提とする。
+2. 実行環境は Java 25 LTS を基本とし、独立実行（埋め込み Tomcat）を前提とする。
+   EAP 8 に残す部分は Java 21 とする。
 3. O/R マッパーは Doma 3 とする。
 4. Excel 設計書は Markdown を SSOT とし、Excel は生成物または移行期の入力に限定する。
 5. 移行はストラングラー方式で行い、JBoss EAP は移行期間のみ維持する。
@@ -48,6 +50,7 @@ status: "approved"
 #### Spring Boot を選ぶ理由
 
 - Java 17 以上を前提とする標準技術で、Jakarta EE 11 に対応する。
+  Spring Boot 4.1 は Java 27 まで対応し、Java 25 LTS を利用できる。
   Spring Boot 3.x を使う場合は Jakarta EE 10 の EAP 8 とも組み合わせられる。
 - 埋め込み Tomcat で独立実行でき、EAP のサブスクリプションと運用から解放される。
 - Spring MVC、Spring Batch、Spring Security、Actuator、Micrometer など、
@@ -115,7 +118,8 @@ status: "approved"
 
 #### Spring Boot
 
-- Java 21。Spring Boot 4.1 系を基本とする。
+- Java 25 LTS。Spring Boot 4.1 系を基本とする。
+- EAP 8 に残す部分は Java 21 とする。EAP 8 のサポート構成は JDK 17/21。
 - Spring MVC + Thymeleaf。画面は段階移行し、JSP は温存しない。
 - Spring Batch。バッチはジョブ定義を外部化する。
 - Spring Security。OIDC と LDAP を標準化する。

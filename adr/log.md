@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 19:20 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
+  Java 25 LTS を採用する方針に修正。
 - 18:52 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を追加。
   Spring Boot 4.x、Doma 3、Markdown を SSOT とする決定と移行計画を記録。
 

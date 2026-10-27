@@ -19,7 +19,7 @@ status: "approved"
 - 採用は「延命 + ストラングラー + Spring Boot 移行」の併用。一括書き換えはしない。
 - Seasar2（シーサー2）は 2016-09-26 に EOL。JBoss EAP 8 は Jakarta EE 10 であり、
   Seasar2 をそのまま載せることはできない。EAP 8 に移るなら Seasar2 の撤去が前提。
-- 移行先は Spring Boot 4.x + Doma 3、Excel 設計書は Markdown を SSOT とする。
+- 移行先は Spring Boot 4.x + Doma 3（Java 25 LTS）、Excel 設計書は Markdown を SSOT とする。
   詳細は [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
 - 短期は JBoss EAP 7.4 の ELS で延命し、新規・変更の多い機能から
   Spring Boot + Doma 3 の新サービスへ移す。
@@ -75,10 +75,11 @@ status: "approved"
 - 延命: EAP 7.4 ELS を契約し、JDK 11 を維持する。Seasar2 は凍結し、
   新規機能を載せない。ELS の上限は 2030-12-31。JDK 11 自体のサポート期限は
   ベンダーごとに異なるため、契約前に確認する。
-- 新規・変更の多い機能: Spring Boot 4.x + Doma 3 の新サービス。
+- 新規・変更の多い機能: Spring Boot 4.x + Doma 3（Java 25 LTS）の新サービス。
   Apache httpd / ALB / API Gateway でルーティングする。
 - 残存機能: 変更のタイミングで Spring Boot へ移す。EAP 8 に残す部分も、
   Seasar2 を捨てて Jakarta EE 標準に寄せ、最終的に Spring Boot へ統合する。
+  EAP 8 残存時の Java は 21 とする。
 - 最終的にランタイムを 1 つに寄せる。EAP と Spring Boot の二重運用は
   移行期間だけに限定する。
 - 優先順位は「変更頻度 × ビジネス価値 × 技術的リスク」で決める。
@@ -101,7 +102,7 @@ status: "approved"
 
 | 層 | 現状 | 移行先 | 備考 |
 | --- | --- | --- | --- |
-| 実行環境 | Java 8 | Java 21（基本）/ Java 25（将来） | Spring Boot 4.x は Java 17 以上 |
+| 実行環境 | Java 8 | Java 25 LTS（新規）/ Java 21（EAP 8 残存時） | Spring Boot 4.x は Java 17 以上、Java 27 まで |
 | AP サーバ | JBoss EAP 7.x | Spring Boot 4.x 埋め込み（EAP 8 は移行期間のみ） | EAP 8 は Jakarta EE 10 |
 | DI/AOP | Seasar2 | Spring DI（CDI は EAP 8 残存時） | dicon を Java Config へ |
 | Web | SAStruts / Struts | Spring MVC | JSP は Thymeleaf へ段階移行 |
@@ -326,7 +327,7 @@ status: "approved"
 
 ## 決定事項（2026-10-27）
 
-- アプリケーション基盤は Spring Boot 4.x（Java 21、独立実行）とする。
+- アプリケーション基盤は Spring Boot 4.x（Java 25 LTS、独立実行）とする。
 - O/R マッパーは Doma 3 とする。
 - Excel 設計書は Markdown を SSOT とし、Excel は生成物または移行期の入力に限定する。
 - 移行はストラングラー方式とし、JBoss EAP は移行期間のみ維持する。
