@@ -44,8 +44,8 @@ status: "approved"
 5. 移行はストラングラー方式で行い、JBoss EAP は移行期間のみ維持する。
 6. 新規機能は最初から Spring Boot + Doma 3 で実装する。
 7. ドキュメントは docs-as-code とし、CI でリンク、構造、生成物の差分を検証する。
-8. JDK ディストリビューションは Azul Zulu 25 を第一候補とし、
-   Amazon Corretto 25 を代替とする。
+8. JDK ディストリビューションは Azul Zulu 25（無償版）を採用する。
+   Amazon Corretto 25 は CI の互換性検証に使う。
 9. 有償サポートは必須としない。本番で SLA が必要になった時点で検討する。
 10. 移行の設計・実装は内製を主体とし、外部には JDK の専門知識と
     短期のレビューを求める。常駐型の移行支援は前提としない。
@@ -93,9 +93,9 @@ status: "approved"
 | Oracle JDK 25 | 制限あり | 2028年9月 | 無償利用は個人・開発向け |
 | BellSoft Liberica 25 | 要確認 | 商用は 2034年3月 | 無償版の期間が不明確 |
 
-- Azul Zulu 25 を第一候補とする。無償期間が最も長く、主要プラットフォームを
+- Azul Zulu 25（無償版）を採用する。無償期間が最も長く、主要プラットフォームを
   サポートする。無償版はセキュリティ更新を含むが、商用サポートは含まない。
-- Amazon Corretto 25 を代替とする。無償期間は Zulu より約 1 年短いが、
+- Amazon Corretto 25 は CI の互換性検証に使う。無償期間は Zulu より約 1 年短いが、
   AWS の本番環境での実績があり、ドロップイン置換が可能。
 - Eclipse Temurin 25 はコミュニティ中立性が高いが、無償期間は 2031年9月まで。
 - Oracle JDK 25 は無償更新が 2028年9月までで短く、採用しない。
@@ -154,8 +154,11 @@ status: "approved"
 #### Spring Boot
 
 - Java 25 LTS。Spring Boot 4.1 系を基本とする。
-- JDK は Azul Zulu 25 を既定とし、CI で Amazon Corretto 25 も検証する。
+- JDK は Azul Zulu 25（無償版）を既定とし、CI で Amazon Corretto 25 も検証する。
 - Maven / Gradle の Toolchains で JDK を切り替え可能にする。
+- Java SE 標準 API と標準 JVM オプションに限定する。JDK 固有 API は使わない。
+- JavaFX、Native Image、CRaC、FIPS は、必要になった時点で別途検討する。
+- フォント、タイムゾーンデータ、CA 証明書はコンテナイメージで明示的に管理する。
 - EAP 8 に残す部分は Java 21 とする。EAP 8 のサポート構成は JDK 17/21。
 - Spring MVC + Thymeleaf。画面は段階移行し、JSP は温存しない。
 - Spring Batch。バッチはジョブ定義を外部化する。
