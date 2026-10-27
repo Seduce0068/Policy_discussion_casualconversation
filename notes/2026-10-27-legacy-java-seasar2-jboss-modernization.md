@@ -276,6 +276,7 @@ status: "approved"
 ### 向く作業
 
 - 影響範囲調査: LSP / Serena でシンボル参照、grep で設定・SQL・JSP を追う。
+  外部の移行支援に頼る前に、コードベースの理解を opencode で加速する。
 - 変換の下書き: dicon → Java Config、S2Dao SQL → Doma SQL、Excel → Markdown。
 - テスト生成: 特性テスト、JUnit 5 移行、Testcontainers の雛形。
 - レビュー: arch-reviewer、security-reviewer、ops-reviewer の並列実行。
@@ -334,6 +335,8 @@ status: "approved"
 - JDK は Azul Zulu 25（無償、2033年9月まで）を第一候補、
   Amazon Corretto 25（2032年10月まで）を代替とする。
 - 有償サポートは必須とせず、本番で SLA が必要になった時点で検討する。
+- 移行の設計・実装は内製を主体とし、外部には JDK の専門知識と
+  短期のレビューを求める。常駐型の移行支援は前提としない。
 - 詳細と代替案の却下理由は
   [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) に記録した。
 
@@ -343,6 +346,7 @@ status: "approved"
 - 画面を Thymeleaf で統一するか、React を併用するか。
 - 帳票を JasperReports にするか、Excel テンプレートを維持するか。
 - 有償サポートの契約要否と、契約する場合のベンダー。
+- 外部の移行支援をスポットで入れるか、内製だけで進めるか。
 - オンプレミスかクラウドか。
 - 内製かベンダーか。
 
