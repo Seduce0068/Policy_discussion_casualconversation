@@ -2,6 +2,8 @@
 
 ## 2026-10-27
 
+- 23:33 - [さくらのクラウドを前提とした移行アーキテクチャ](2026-10-27-sakura-cloud-architecture.md) を更新。
+  外部マネージド PostgreSQL のコスト目安を追記。
 - 23:29 - [さくらのクラウドを前提とした移行アーキテクチャ](2026-10-27-sakura-cloud-architecture.md) を更新。
   外部マネージド PostgreSQL の候補と接続方式を追記。
 - 23:25 - [さくらのクラウドを前提とした移行アーキテクチャ](2026-10-27-sakura-cloud-architecture.md) を更新。
