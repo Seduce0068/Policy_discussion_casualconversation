@@ -82,6 +82,34 @@ status: "draft"
 - IaC は Terraform で管理する。
 - 監視は Prometheus と Grafana、ログは Loki を自前で構築する。
 
+## 外部マネージド PostgreSQL
+
+さくらのクラウドの DB アプライアンスを使わず、外部のマネージド PostgreSQL を
+使う場合の候補を整理する。
+
+| サービス | 東京 | PostgreSQL 18 | 自動更新 | 接続 | 備考 |
+| --- | --- | --- | --- | --- | --- |
+| AWS RDS / Aurora | あり | あり | マイナー自動、メジャー手動 | VPC ピアリング、Transit Gateway、Direct Connect | 実績、日本語サポート |
+| Google Cloud SQL | あり | あり | マイナー自動、メジャー手動 | VPC ピアリング、Private Service Connect | 日本語サポート |
+| Google AlloyDB | あり | あり | マイナー自動 | VPC ピアリング | 高性能、コスト高め |
+| Azure Flexible Server | あり | あり | マイナー自動、メジャー手動 | VNet 統合、Private Link | 日本語サポート |
+| Aiven | あり | あり | マイナー自動、メジャー手動 | VPC ピアリング、PrivateLink | マルチクラウド |
+| Neon | なし | あり | 自動 | インターネット | サーバーレス、東京なし |
+| Supabase | あり | 要確認 | 自動 | インターネット | BaaS、18 未対応の可能性 |
+| Crunchy Bridge | あり | 要確認 | マイナー自動 | VPC ピアリング | PostgreSQL 専門 |
+| DigitalOcean | あり | 要確認 | マイナー自動 | VPC ピアリング | 小規模向け |
+| Timescale | あり | 要確認 | マイナー自動 | VPC ピアリング | 時系列 |
+
+- さくらのクラウド内で完結するなら、VM に PostgreSQL 18 を自前で構築するのが
+  最も遅延が少なく、コストも抑えられる。
+- 外部マネージドを使うなら、AWS RDS / Aurora、Google Cloud SQL、
+  Azure Flexible Server が無難。東京リージョンがあり、PostgreSQL 18 に対応する。
+- Aiven は東京リージョンがあり、マルチクラウドで使える。日本語サポートは要確認。
+- Neon は東京リージョンがないため、日本からのレイテンシが大きい。
+- Supabase は東京リージョンがあるが、PostgreSQL 18 の対応を確認する。
+- 接続は VPN か専用線を使う。インターネット経由の場合は TLS と IP 制限を必須にする。
+- データ転送料金と、さくらのクラウド側の通信料金を試算する。
+
 ## ネットワーク
 
 - VPC とサブネットを分け、アプリ、DB、運用で分離する。
