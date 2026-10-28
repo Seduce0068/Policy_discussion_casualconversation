@@ -20,6 +20,9 @@ status: "draft"
 - 既存の Oracle 18c を維持し、Oracle 26AI Free に移行する。
 - Oracle Free の制約（2 CPU、2GB RAM、12GB ユーザーデータ、サポートなし）を
   許容できる場合に限る。
+- 現行の Oracle 18c Free で十分に処理できているため、26AI Free の
+  2 CPU、2GB RAM でも性能上の問題は想定しない。
+- パフォーマンスは優先度の高い要件ではない。移行前後のベースライン比較だけ行う。
 - 制約を超える場合は、Oracle 26AI Enterprise Edition か PostgreSQL を検討する。
 - PostgreSQL は、Oracle のライセンスや制約が合わない場合の代替とする。
 

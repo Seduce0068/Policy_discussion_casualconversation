@@ -2,6 +2,9 @@
 
 ## 2026-10-28
 
+- 18:30 - [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) と
+  [移行先データベースの選定と最新トレンド](2026-10-27-database-selection.md) を更新。
+  パフォーマンスは優先度の高い要件とせず、現行同等の確認だけ行う方針に変更。
 - 18:22 - [ADR-002](../adr/ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
   DB を Oracle 26AI Free、ビルドを Gradle、画面を Thymeleaf、バッチを Spring Batch に変更。
 - 18:22 - [移行先データベースの選定と最新トレンド](2026-10-27-database-selection.md) を更新。
