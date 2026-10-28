@@ -49,6 +49,15 @@ status: "approved"
 9. 有償サポートは必須としない。本番で SLA が必要になった時点で検討する。
 10. 移行の設計・実装は内製を主体とし、外部には JDK の専門知識と
     短期のレビューを求める。常駐型の移行支援は前提としない。
+11. DB は Oracle Database 26AI Free を第一候補とする。
+12. ビルドツールは Gradle を使う。
+13. 画面は Thymeleaf、バッチは Spring Batch を使う。
+14. スキーマ管理は Flyway を使う。
+15. アーキテクチャはモジュラモノリスとする。
+16. CI/CD は GitHub Actions、コンテナは Docker を使う。
+17. リバースプロキシは Apache HTTP Server 2.4.69 を使い、nginx は使わない。
+18. ストアドプロシージャの業務ロジックは、まず PL/SQL を維持し、
+    テストで固定してから段階的に Java へ移す。
 
 ### 理由
 
@@ -148,6 +157,9 @@ status: "approved"
 | Spring Boot の追従 | 脆弱性・陳腐化 | Renovate、LTS 基準、四半期の更新 |
 | JDK ベンダーの方針変更 | セキュリティ更新の停止 | 標準 API に限定し、Zulu と Corretto を切り替え可能にする |
 | Excel 変換の誤り | 仕様漏れ | 行数・キー・サンプル値の突合、人間レビュー、差分ゼロ検証 |
+| Oracle Free のサポートなし | セキュリティパッチ不在 | 本番利用の可否を経営判断で決める。必要なら EE かクラウドに移す |
+| Oracle Free の 12GB 制限 | データ増加で停止 | データ量を監視し、12GB を超える前に移行する |
+| PL/SQL の業務ロジック | 移行漏れ | PL/SQL を棚卸し、特性テストで固定する |
 
 ### 実装方針
 
@@ -155,11 +167,16 @@ status: "approved"
 
 - Java 25 LTS。Spring Boot 4.1 系を基本とする。
 - JDK は Azul Zulu 25（無償版）を既定とし、CI で Amazon Corretto 25 も検証する。
-- Maven / Gradle の Toolchains で JDK を切り替え可能にする。
+- Gradle の Toolchains で JDK を切り替え可能にする。
 - Java SE 標準 API と標準 JVM オプションに限定する。JDK 固有 API は使わない。
 - JavaFX、Native Image、CRaC、FIPS は、必要になった時点で別途検討する。
 - フォント、タイムゾーンデータ、CA 証明書はコンテナイメージで明示的に管理する。
 - EAP 8 に残す部分は Java 21 とする。EAP 8 のサポート構成は JDK 17/21。
+- Oracle Database 26AI Free を第一候補とする。PL/SQL の資産を活かす。
+- Flyway でスキーマを管理する。
+- モジュラモノリスとして、機能単位でモジュールを分ける。
+- GitHub Actions で CI/CD を組む。コンテナは Docker を使う。
+- Apache HTTP Server 2.4.69 をリバースプロキシに使う。nginx は使わない。
 - Spring MVC + Thymeleaf。画面は段階移行し、JSP は温存しない。
 - Spring Batch。バッチはジョブ定義を外部化する。
 - Spring Security。OIDC と LDAP を標準化する。
@@ -185,6 +202,10 @@ src/main/resources/META-INF/<DaoのFQCN>/<メソッド名>.sql
 - テストは Testcontainers で実 DB に近い環境を使う。
 - 動的 SQL が複雑で 2-way SQL に馴染まない箇所は、Doma の DSL か
   MyBatis の併用を個別に判断する。既定は Doma 3 とする。
+- Oracle の PL/SQL は、まず現行のまま維持する。業務ロジックの棚卸しと
+  特性テストが終わってから、段階的に Java へ移す。
+- Oracle 固有の SQL（ROWNUM、CONNECT BY、DECODE、NVL など）は、
+  Doma の SQL でもそのまま使える。標準 SQL への書き換えは急がない。
 
 #### Excel → Markdown
 
@@ -246,4 +267,13 @@ src/main/resources/META-INF/<DaoのFQCN>/<メソッド名>.sql
 - [Amazon Corretto FAQs](https://aws.amazon.com/corretto/faqs/)
 - [Adoptium Temurin Support](https://adoptium.net/support/)
 - [Microsoft Build of OpenJDK Support](https://learn.microsoft.com/en-us/java/openjdk/support)
+- [Oracle AI Database Free](https://www.oracle.com/database/free/)
+- [Oracle AI Database Free Licensing Restrictions](https://docs.oracle.com/en/database/oracle/oracle-database/26/xeinl/licensing-restrictions.html)
+- [Apache HTTP Server 2.4.69](https://httpd.apache.org/)
+- [Gradle](https://gradle.org/)
+- [Spring Batch](https://spring.io/projects/spring-batch)
+- [Flyway](https://flywaydb.org/)
+- [Spring Modulith](https://spring.io/projects/spring-modulith)
+- [GitHub Actions](https://github.com/features/actions)
+- [Docker](https://www.docker.com/)
 - [calamine](https://github.com/tafia/calamine)

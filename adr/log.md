@@ -1,5 +1,10 @@
 # ADR 更新履歴
 
+## 2026-10-28
+
+- 18:22 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。
+  DB を Oracle 26AI Free、ビルドを Gradle、画面を Thymeleaf、バッチを Spring Batch に変更。
+
 ## 2026-10-27
 
 - 19:43 - [ADR-002 Spring Boot + Doma 3 への移行と Excel 設計書の Markdown 化](ADR-002-spring-boot-doma3-excel-to-markdown.md) を更新。

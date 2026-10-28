@@ -16,10 +16,12 @@ status: "draft"
 
 ## 結論
 
-- 新規サービスは PostgreSQL を第一候補とする。
-- 既存 DB は維持を基本とし、移行する場合も PostgreSQL を選ぶ。
-- 2026年10月時点の最新安定版は PostgreSQL 18。
-- PostgreSQL 19 は 2026年11月19日に GA 予定。GA 後に検証して採用する。
+- 新規サービスは Oracle Database 26AI Free を第一候補とする。
+- 既存の Oracle 18c を維持し、Oracle 26AI Free に移行する。
+- Oracle Free の制約（2 CPU、2GB RAM、12GB ユーザーデータ、サポートなし）を
+  許容できる場合に限る。
+- 制約を超える場合は、Oracle 26AI Enterprise Edition か PostgreSQL を検討する。
+- PostgreSQL は、Oracle のライセンスや制約が合わない場合の代替とする。
 
 ## 最新トレンド
 
@@ -39,6 +41,7 @@ status: "draft"
 
 | DB | ライセンス | 強み | 弱み | 用途 |
 | --- | --- | --- | --- | --- |
+| Oracle 26AI Free | Oracle Free Use Terms | PL/SQL、AI Vector Search、JSON、Graph | 2 CPU、2GB RAM、12GB、サポートなし | 現行資産の継続 |
 | PostgreSQL | PostgreSQL License | 機能、拡張性、人気、クラウド対応 | 運用ノウハウが必要 | 汎用、新規 |
 | MySQL | GPLv2 | Web アプリの実績、シンプル | 拡張性は PostgreSQL に劣る | Web アプリ |
 | MariaDB | GPLv2 | MySQL 互換、オープン | エコシステムは MySQL に劣る | MySQL 代替 |
@@ -58,18 +61,20 @@ status: "draft"
 
 ## 推奨
 
-- 新規サービスは PostgreSQL 18 を使う。
-- PostgreSQL 19 は GA 後に検証し、問題がなければ採用する。
-- 既存 DB は維持を基本とする。DB 移行はリスクが大きいため、
-  新規サービスと変更の多い機能から PostgreSQL に寄せる。
-- マネージドサービスを選ぶ。AWS Aurora PostgreSQL、Google Cloud SQL、
-  Google AlloyDB、Azure Database for PostgreSQL Flexible Server が候補。
-- ベクター検索が必要なら pgvector を使う。
+- 新規サービスは Oracle Database 26AI Free を使う。
+- 既存の Oracle 18c の PL/SQL 資産を活かす。
+- 12GB のデータ制限を監視し、超える前に Oracle 26AI EE か PostgreSQL へ移す。
+- サポートが必要なら Oracle 26AI EE か Oracle Cloud を選ぶ。
+- PostgreSQL は、Oracle のライセンスや制約が合わない場合の代替とする。
 - 分析用途は DuckDB か ClickHouse を別途検討する。
 
 ## 移行の注意
 
-- PL/SQL などのストアドプロシージャは、Java か SQL に書き換える。
+- Oracle 18c から 26AI へのアップグレードは、AutoUpgrade か Data Pump を使う。
+- PL/SQL はまず現行のまま移し、特性テストで固定してから Java へ移す。
+- Oracle 固有の SQL（ROWNUM、CONNECT BY、DECODE、NVL など）は、
+  26AI でもそのまま使える。標準 SQL への書き換えは急がない。
+- 非推奨機能と初期化パラメータを確認する。
 - シーケンスと ID 生成の方式を確認する。
 - 日付型、タイムゾーン、NULL の扱いを確認する。
 - ページングの SQL を書き換える。
@@ -88,6 +93,8 @@ status: "draft"
 
 ## 参照
 
+- [Oracle AI Database Free](https://www.oracle.com/database/free/)
+- [Oracle AI Database Free Licensing Restrictions](https://docs.oracle.com/en/database/oracle/oracle-database/26/xeinl/licensing-restrictions.html)
 - [Stack Overflow Developer Survey 2026: Databases](https://survey.stackoverflow.co/2026/technology/data/databases)
 - [DB-Engines Ranking](https://db-engines.com/en/ranking)
 - [PostgreSQL 19 RC 1 Released](https://www.postgresql.org/about/news/postgresql-19-rc-1-released-3409)
