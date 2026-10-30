@@ -76,6 +76,44 @@ status: "draft"
   （ビルトイン agent ポリシーがユーザールールに勝つ）もあったが、
   2026-10-20 にクローズ済みである。
 
+### 絶対パス指定と Windows パス表記の追試（同日追記）
+
+- 雑談の続きで、絶対パスで `resource` を書き `service restart` で
+  再起動しても deny が効かなかったという実体験が加わった。
+  職場の Windows PC ではパス区切りのスラッシュも原因の一つの
+  可能性があるという指摘もあった。
+- 絶対パス系は [anomalyco/opencode#50241](https://github.com/anomalyco/opencode/issues/50241)
+  （closed）で実証済みの構造である。Plan agent の allow ルールは
+  絶対パス（`/home/qasha/.opencode/plan/*`）に解決されているのに、
+  実際の検査ではプロジェクト内パスが Location 相対形式
+  （`.opencode/plan/...`）で渡るため、絶対パスのルールはマッチせず
+  先頭の deny が勝つ。 deny/allow が絶対パスで機能しないのは
+  優先度や反映タイミングの問題ではなくマッチング形式の不一致であり、
+  `service restart` で設定を読み込み直してもマッチングロジック自体は
+  変わらないため効かない。本件の修正 PR #53365 は open のまま。
+- Windows 系は [anomalyco/opencode#36681](https://github.com/anomalyco/opencode/issues/36681)
+  （closed）に実験記録がある。要点は次の通り。
+  - 報告者の実験では `C:\Users\...`（バックスラッシュ）形式は機能し、
+    `/c/Users/` 形式は機能しなかった
+  - 実行時の検査パスは「正規化 + glob 付き形式」
+    （例: `C:\\Projects\\AI\\lm-studio-assistant\\*`）に変換されるため、
+    設定に書いたリテラル文字列とは文字列一致しない
+    （該当 issue の m13v による分析コメント）
+  - `external_directory` の設定がホーム側設定と累積されず、
+    `~/.config/opencode/` 側の allow が静かに落ちる観測もあった
+    （当時のドキュメント「merged together, not replaced」に矛盾）
+  - `touch` や `glob` が `external_directory` の判定に従わない
+    別系統の穴も観測されていた
+- #36681 のクローズは 2026-10-11 だが、理由は「V1 起点の issue を
+  V2 開発集中のため一括クローズする」トリアイジ（v1-issue-triage）であり、
+  修正確認ではない。V2 現行で同構造がどこまで残っているかは
+  #53365 が open の時点では楽観できない。
+- なお Windows の公式保証は「バックスラッシュはスラッシュに正規化され、
+  マッチングは大文字小文字を区別しない」（Permissions ドキュメント）の
+  みで、ドライブレターの正規表記や `~`/`$HOME` の Windows での展開規約は
+  現行 V2 ドキュメントにも明示されていない（#36681 報告者の指摘と同じ
+  状況が続いている）。
+
 ## 得られた気づき
 
 - パーミッション系の静かな失敗（quiet failure）はセキュリティ上
@@ -111,6 +149,9 @@ status: "draft"
       テスト用プロジェクトで行う
 - [ ] 自身の `opencode.jsonc` に書いた deny ルールのパス表記監査
       （`./` 付き、絶対パス直書きの混入確認）
+- [ ] 職場 Windows PC での再試行。Location 相対（`./` なし）で deny が
+      発動するか、`C:\` バックスラッシュ形式と `C:/` スラッシュ形式の
+      差分を確認する。現行 V2 で #36681 系がどこまで残存するかの検証も兼ねる
 
 ## 参照
 
@@ -121,3 +162,5 @@ status: "draft"
 - [anomalyco/opencode#43669: Config permissions/agents overrides cannot override built-in agent policies](https://github.com/anomalyco/opencode/issues/43669)
 - [anomalyco/opencode#54044: agents: browser tools exposed despite agent-level "deny browser"](https://github.com/anomalyco/opencode/issues/54044)
 - [anomalyco/opencode#59564: permissions: external_directory check misses directory flags](https://github.com/anomalyco/opencode/issues/59564)
+- [anomalyco/opencode#50241: plan: plan-mode guard denies writes to configured plan directory](https://github.com/anomalyco/opencode/issues/50241)
+- [anomalyco/opencode#36681: Windows path references and permissions on external directory path not working](https://github.com/anomalyco/opencode/issues/36681)

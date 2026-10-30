@@ -2,6 +2,10 @@
 
 ## 2026-10-30
 
+- 18:16 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
+  に追記。絶対パス＋`service restart` でも効かない実体験を #50241 の
+  相対パス検査構造と突き合わせ、Windows のドライブレター表記差異と
+  正規化 + glob 変換の不一致（#36681）を整理した。
 - 18:12 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
   を追加。「後出しdenyが機能しない」という伝聞を公式ドキュメントとissueで
   裏取り、permissions の resource パス表記と検査パスのリテラル不一致で
