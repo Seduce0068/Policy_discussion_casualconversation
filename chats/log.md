@@ -2,6 +2,11 @@
 
 ## 2026-10-30
 
+- 18:57 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
+  に追記。検証環境の分担を整理。バグ本体（`./`・絶対パスのマッチ不一致）は
+  OS 非依存で自宅 Kubuntu でも再現可能、Windows 特有レイヤー
+  （ドライブレター・UNC・大小文字）のみ職場確認と分担し、
+  フォローアップを更新した。
 - 18:55 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
   に追記。解決見通しを PR・issue のステータスとリリースペースから確認。
   修正 PR #53365 は CI 完了だがレビュー 0 件で約 3 週間停滞、#55728 は
