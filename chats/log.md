@@ -2,6 +2,11 @@
 
 ## 2026-10-30
 
+- 18:22 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
+  に追記。パス正規化パイプラインを v2 実装（`file-access.ts`、
+  `wildcard.ts`、`expandHome`、`windowsPath`）から直接確認し、
+  Location 内/外の 2 分化、config 側の無正規化、`//` 縮約なし、
+  deny 先読み評価の実装事実を整理した。
 - 18:16 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
   に追記。絶対パス＋`service restart` でも効かない実体験を #50241 の
   相対パス検査構造と突き合わせ、Windows のドライブレター表記差異と

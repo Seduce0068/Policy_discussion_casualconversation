@@ -114,6 +114,44 @@ status: "draft"
   現行 V2 ドキュメントにも明示されていない（#36681 報告者の指摘と同じ
   状況が続いている）。
 
+### パス正規化パイプラインの実装確認（同日第二追記）
+
+- 「絶対的な互換性を持つパス記載方式はあるか」「連続スラッシュは
+  問題にならないか」という問いに対し、v2 ブランチの実装
+  （`permission.ts`、`file-access.ts`、`util/wildcard.ts`、
+  `config/plugin/agent.ts`、`util/fs-util.ts`）を直接確認した。
+- 検査パスの形式は `FileAccess.resolve` が「Location 内か外か」で
+  2分化する。Location（または worktree）内は Location 相対形式
+  （`slash(path.relative(...))`）、Location 外は絶対形式
+  （`slash(absolute)`、ディレクトリは `dir/*`）。単一の書式で両方を
+  cover する手段は現行になく、これが #55728/#50241 の構造的根因である。
+- 正規化パイプラインの実装事実は次の通り。
+  - config 側: `~`/`$HOME` 展開は `external_directory`, `read`, `edit` の
+    3 action のみ（`expandHome`）。`~/`, `$HOME/`, `$HOME\` は
+    `path.join(home, ...)` に展開される。それ以外の形式
+    （`./` 付き、`/c/` 形式、絶対パス直書き）は正規化されず
+    リテラルのまま比較される。shell 系 action は生テキストのまま。
+  - ツール入力側: `FSUtil.windowsPath`（win32 のみ）が `/c:`、`/c/`、
+    `/cygdrive/c/`、`/mnt/c/`（WSL）を `C:/` に変換し、`path.resolve()` が
+    連続セパレータを畳む。config 側にはこの変換が適用されない。
+  - マッチ（`Wildcard.match`）: 両辺を `replaceAll("\\", "/")` した後、
+    `*` を `.*`（`s` フラグで `/` を含む全文字）、`?` を `.` に変換し
+    `^...$` 完全一致。win32 のみ `i` フラグで大文字小文字を無視。
+- 連続スラッシュ（`//`）の実態は「縮約しない」ことと両辺の非対称性に
+  ある。`Wildcard.match` は `//` を `/` に畳まないため、UNC
+  （`\\server\share`）は `//server/share` として検査され、設定にも
+  `//server/share/*` と2個で書く必要がある。ツール入力側の `//` は
+  `path.resolve()` で畳まるが、config 側は畳まれない。
+- #36681 のログで `C:\\\\Projects\\\\...` と4重に見えたのは JSON
+  エスケープの表示であり、実比較は1回のスラッシュ化のみ。
+  「バックスラッシュがひどい」のは主に表示上の問題で、比較上は
+  `C:\` と `C:/` が等価（両辺スラッシュ化）である。本当の地雷は
+  「config 側は正規化されないまま比較される」点にある。
+- なお `permission.ts` では、deny 判定は saved approval（Allow always の
+  保存ルール）を含まない先読み評価で行われており、「configured deny が
+  saved approval に勝つ」設計は実装されている。deny が効かない場合は
+  優先度ではなくマッチ失敗と切り分けられる。
+
 ## 得られた気づき
 
 - パーミッション系の静かな失敗（quiet failure）はセキュリティ上
@@ -152,6 +190,9 @@ status: "draft"
 - [ ] 職場 Windows PC での再試行。Location 相対（`./` なし）で deny が
       発動するか、`C:\` バックスラッシュ形式と `C:/` スラッシュ形式の
       差分を確認する。現行 V2 で #36681 系がどこまで残存するかの検証も兼ねる
+- [ ] UNC パス（`//server/share/*` 形式）での external_directory の
+      発動確認。実装上は `//` 縮約なしのため2個書きが必須のはずだが、
+      実ドキュメントに明示がなく未検証である
 
 ## 参照
 
@@ -164,3 +205,8 @@ status: "draft"
 - [anomalyco/opencode#59564: permissions: external_directory check misses directory flags](https://github.com/anomalyco/opencode/issues/59564)
 - [anomalyco/opencode#50241: plan: plan-mode guard denies writes to configured plan directory](https://github.com/anomalyco/opencode/issues/50241)
 - [anomalyco/opencode#36681: Windows path references and permissions on external directory path not working](https://github.com/anomalyco/opencode/issues/36681)
+- [file-access.ts（v2）: 検査パスの相対/絶対2分化と `slash` 変換](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/file-access.ts)
+- [wildcard.ts（v2）: `Wildcard.match` のスラッシュ化と `*`/`?` 変換](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/util/wildcard.ts)
+- [config/plugin/agent.ts（v2）: `expandHome` とパス系 action の限定展開](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/config/plugin/agent.ts)
+- [util/fs-util.ts（v2）: `windowsPath` の `/c/`・WSL 形式変換](https://github.com/anomalyco/opencode/blob/v2/packages/util/src/fs-util.ts)
+- [permission.ts（v2）: deny 先読み評価と saved approval の連結順](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/permission.ts)
