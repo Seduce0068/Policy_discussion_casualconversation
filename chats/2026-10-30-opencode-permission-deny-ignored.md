@@ -210,3 +210,4 @@ status: "draft"
 - [config/plugin/agent.ts（v2）: `expandHome` とパス系 action の限定展開](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/config/plugin/agent.ts)
 - [util/fs-util.ts（v2）: `windowsPath` の `/c/`・WSL 形式変換](https://github.com/anomalyco/opencode/blob/v2/packages/util/src/fs-util.ts)
 - [permission.ts（v2）: deny 先読み評価と saved approval の連結順](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/permission.ts)
+- [同リポジトリ内の関連記録: VS Code の設定ファイルにおけるパスと変数の分かりづらさ](2026-10-30-vscode-path-notation.md)
