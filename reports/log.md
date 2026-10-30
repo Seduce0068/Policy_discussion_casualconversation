@@ -1,5 +1,9 @@
 # レポート更新履歴
 
+## 2026-10-30
+
+- 13:05 - [Apache httpd 2.4.44→2.4.69 破壊的変更調査報告](2026-10-30-apache-httpd-2-4-44-to-2-4-69-breaking-changes.md) を追加。
+
 ## 2026-10-25
 
 - 23:20 - [opencodego モデルルーティング調査報告](2026-10-25-opencodego-model-routing.md) を追加。
