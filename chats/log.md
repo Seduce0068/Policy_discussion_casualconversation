@@ -2,6 +2,11 @@
 
 ## 2026-10-30
 
+- 18:53 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
+  に追記。バグの経緯を移行ドキュメントとコミット履歴から確認し、
+  V2 再設計（PR #47630）での resource 内部形式の確定と
+  `external_directory` 既定変更（ask→allow）による失敗モードの反転
+  （可視→不可視）という顕在化経路を整理した。
 - 18:25 - [VS Code の設定ファイルにおけるパスと変数の分かりづらさ](2026-10-30-vscode-path-notation.md)
   を追加。変数置換がファイル×キー単位で限定される実態、`~` 非展開、
   `${workspaceRoot}` 非推奨、echo タスク以外に実値確認手段がない点を

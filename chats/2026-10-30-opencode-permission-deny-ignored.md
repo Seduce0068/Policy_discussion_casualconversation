@@ -152,6 +152,45 @@ status: "draft"
   saved approval に勝つ」設計は実装されている。deny が効かない場合は
   優先度ではなくマッチ失敗と切り分けられる。
 
+### バグの経緯 —— V2 再設計と失敗モードの変化（同日第三追記）
+
+- 「どういう経緯で生まれたバグか。今までは問題なかったのに急に現れる
+  ことはあるか」という問いに対し、移行ドキュメント（migrate-v1）と
+  コミット履歴で経緯を確認した。時系列は次の通り。
+  - V1（〜2026年夏）: `permission` はツール名→パターンマップ形式。
+    ツールごとにパス解決とパーミッション判定を個別実装。パス表記の
+    混乱は V1 時代からあった（#36681 は 2026-07、V1 1.17.18 の報告）。
+    ただしプロジェクト外アクセスの既定は ask だった。
+  - V2 beta（2026-08）: 統一ルールエンジンを新規構築。順序付き配列、
+    `Wildcard.match`、シェルスキャナ、plugin hooks
+    （`permission.ts` のコミット履歴が 8 月に密集）。
+  - 2026-09-07、PR #47630「unify filesystem access policy」: 各ツールが
+    バラバラに持っていたパス解決と resource 決定を `FileAccess` に統一し、
+    「internal=Location 相対 / external=絶対」という resource の内部形式が
+    単一実装として確定した。PR の目的は重複排除のリファクタリングであり、
+    設定に書いた文字列を内部形式へ正規化する橋渡しは作られなかった。
+  - V2 リリース（2026年秋）: 移行ドキュメントに明記の breaking change として、
+    プロジェクト外アクセスの既定が V1 の ask から `external_directory`
+    の allow に変更された。
+  - 顕在化（2026-10）: v2.0.10 で #50241（絶対パス allow が死ぬ）、
+    v2.0.20 で #55728（`./` 付き deny が死ぬ）と報告が連鎖。
+    修正 PR #53365 は open のまま v2.2.1 に至る。
+- 「急に現れる」機構は 3 層で説明できる。
+  1. 埋め込みと顕在化のタイムラグ: バグを生んだ変更（8〜9 月の再設計）と
+     ユーザーが遭遇するタイミング（V2 リリース後の設定移行）がずれる。
+     埋め込みから報告連鎖まで約 1 ヶ月。
+  2. 既定変更で失敗モードが反転: V1 では deny がマッチしなくても
+     既定 ask のプロンプトで止まるため可視的失敗として気づけた。
+     V2 ではマッチしない deny が既定 allow の下で黙って通過する
+     不可視的失敗になる。同じ「マッチしない」欠陥でも見え方が正反対。
+  3. 静かな失敗の蓄積: warning もエラーも出ないため、存在しても
+     気づかれないバグは、既定変更・報告増加・使い方の変化といった
+     トリガーが来るまで表面化しない。
+- 「今までは問題なかった」という体感は正確だった。欠陥の種
+  （リテラル不一致の可能性）は V1 にもあったが、V2 の再設計で
+  内部形式が固定され、失敗が不可視化されて初めて「効かない deny」と
+  して認識可能になった。
+
 ## 得られた気づき
 
 - パーミッション系の静かな失敗（quiet failure）はセキュリティ上
@@ -205,6 +244,8 @@ status: "draft"
 - [anomalyco/opencode#59564: permissions: external_directory check misses directory flags](https://github.com/anomalyco/opencode/issues/59564)
 - [anomalyco/opencode#50241: plan: plan-mode guard denies writes to configured plan directory](https://github.com/anomalyco/opencode/issues/50241)
 - [anomalyco/opencode#36681: Windows path references and permissions on external directory path not working](https://github.com/anomalyco/opencode/issues/36681)
+- [anomalyco/opencode PR #47630: refactor(core): unify filesystem access policy](https://github.com/anomalyco/opencode/pull/47630)
+- [OpenCode V2 移行ガイド（migrate-v1）: external_directory の既定変更](https://opencode.ai/v2/docs/migrate-v1)
 - [file-access.ts（v2）: 検査パスの相対/絶対2分化と `slash` 変換](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/file-access.ts)
 - [wildcard.ts（v2）: `Wildcard.match` のスラッシュ化と `*`/`?` 変換](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/util/wildcard.ts)
 - [config/plugin/agent.ts（v2）: `expandHome` とパス系 action の限定展開](https://github.com/anomalyco/opencode/blob/v2/packages/core/src/config/plugin/agent.ts)
