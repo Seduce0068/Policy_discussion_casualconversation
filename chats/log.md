@@ -1,5 +1,13 @@
 # 雑談更新履歴
 
+## 2026-10-30
+
+- 18:12 - [opencode.jsonc の deny ルールが黙って無視される](2026-10-30-opencode-permission-deny-ignored.md)
+  を追加。「後出しdenyが機能しない」という伝聞を公式ドキュメントとissueで
+  裏取り、permissions の resource パス表記と検査パスのリテラル不一致で
+  deny が静かに失効する実在バグ（#55728、PR #53365）とワークアラウンドを
+  整理した。
+
 ## 2026-10-28
 
 - 20:46 - [コメと人口増加](2026-10-28-rice-and-population.md) を追加。稲作と

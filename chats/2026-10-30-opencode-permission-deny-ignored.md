@@ -1,0 +1,123 @@
+---
+type: Chat
+title: "opencode.jsonc の deny ルールが黙って無視される —— パス表記不一致の系"
+description: "「パーミッションの後出しdenyが機能しない」という伝聞を公式ドキュメントとissueで裏取り、opencode.jsonc の permissions の resource パス表記がツールの検査パスとリテラル不一致だと deny が静かに失効する実在バグを確認した"
+tags:
+  - chat
+  - opencode
+  - permissions
+  - access-control
+  - quiet-failure
+generated:
+  by: opencode
+  at: "2026-10-30T18:12:35+09:00"
+status: "draft"
+---
+
+## 文脈
+
+- 2026-10-30 の雑談。「最新のopencodeのバグで、パーミッションの後出しdenyが
+  機能しないらしい」という伝聞から、対象が `opencode.jsonc` の permissions
+  の話と特定し、公式ドキュメント（V2）と issue トラッカーで裏を取った。
+- ローカル環境は opencode v2.2.1。開発リポジトリは `sst/opencode` から
+  `anomalyco/opencode` に移転しており、issue の一次情報は移転先にある。
+
+## 結論
+
+- 伝聞は実在するバグに対応する。ただし「後出し」の時間的解釈
+  （セッション途中の設定変更が反映されない）に該当する open issue は
+  見つけられず、確認できたのは「`opencode.jsonc` に書いた deny ルールが
+  静かに無視される」系のバグだった。
+- 最有力は [anomalyco/opencode#55728](https://github.com/anomalyco/opencode/issues/55728)
+  （open、`reproduced` ラベル付き）。`read` の deny ルールの `resource` を
+  `./Workshop/Checklist.md` のように `./` 付きで書くと、read ツールは
+  Location 相対パス（`Workshop/Checklist.md`）でパーミッション検査するため、
+  リテラル比較で絶対にマッチせず、deny が効かずファイル内容がモデルに返る。
+  v2.0.20 の報告だが、メンテナが最新 `dev` でも再現を確認済みで、
+  v2.2.1 への残存可能性が高い。
+- 同根の不一致として [PR #53365](https://github.com/anomalyco/opencode/pull/53365)
+  （open）がある。絶対パスのルール（`<home>/.opencode/plan/*`）がプロジェクト内
+  の相対パス検査（`.opencode/plan/work.md`）にマッチせず、Plan agent の allow
+  が死んで先頭の `edit *` deny が勝つ。方向は逆だが根は同じ
+  「ルールのパス表記と検査パスの形式不一致」である。
+- 公式ドキュメント（Permissions）は「保存済み approval（Allow always）は
+  設定済み `deny` を決して上書きしない」と明記しており、設計上は
+  `opencode.jsonc` の deny が常に最優先のはずである。それが効かないのは
+  優先度ではなくマッチ自体が失敗しているためで、スキーマ検証も通り、
+  エラーも警告も出ない。
+
+## やり取り
+
+### 伝聞の裏取り
+
+- 「後出しdenyが機能しないらしい」という伝聞を、以下の順で検証した。
+  - ローカルバージョン確認（v2.2.1）
+  - リポジトリ特定（`sst/opencode` の検索が失敗し、公式ドキュメントの
+    報告先と `gh search repos` で `anomalyco/opencode` と特定）
+  - 公式 Permissions ドキュメントで設計原則を確認
+  - issue トラッカーで deny 系バグを横断検索
+- 結果として open な deny 系バグは複数確認できた。#55728 のほか、
+  agent レベルの deny browser が効かない #54044、`git -C` 等で
+  `external_directory` 検査を回避される #59564、symlink バイパス #58638
+  がある。API 生成セッションの deny 不履行（#56502 / #56613）は
+  修正済み（closed）。
+
+### 「opencode.jsonc の話」と特定してからの深掘り
+
+- #55728 のメンテナコメントで原因が特定されていた。read ツールは
+  Location 相対パスで検査し、ルールテキストはリテラル比較されるため、
+  `./` 始まりの `resource` は絶対にマッチしない。`./` を外せば
+  同じ deny は正しく発動した。
+- PR #53365 は絶対パス↔相対パスの同種不一致への修正（`read`/`edit` で
+  絶対ルールを解決済み絶対パスにもマッチさせる）だが、`./` ケースは
+  未カバーと明記されている。
+- 過去には beta 期の順序問題
+  [#43669](https://github.com/anomalyco/opencode/issues/43669)
+  （ビルトイン agent ポリシーがユーザールールに勝つ）もあったが、
+  2026-10-20 にクローズ済みである。
+
+## 得られた気づき
+
+- パーミッション系の静かな失敗（quiet failure）はセキュリティ上
+  最悪の失敗モードである。deny が「マッチしなかった」だけで黙って
+  allow 相当に落ちる。no match の既定が `ask` のアクションでは
+  プロンプトで止まるため気づけるが、`external_directory` は既定が
+  allow なので、パス表記を誤った deny は完全に不可視になる。
+- `resource` の正規化は設定ロード時に一部しか行われない。公式に
+  保証されているのは `external_directory` / `read` / `edit` での
+  `~`, `~/`, `$HOME`, `$HOME/` の先頭展開のみで、`./` の除去や
+  絶対・相対の相互正規化は現行実装にない（#53365 が対応中）。
+- 実務上のワークアラウンドは次の通り。
+  - `read`/`edit` の `resource` は `./` なしの Location 相対パスで書く
+  - ホーム配下は `~/` または `$HOME/` 形式を使う
+  - 絶対パス直書きは相対検査にマッチしない現状リスクを避ける
+  - 記述後に実プロンプトで deny が発動するか確認する。スキーマ検証は
+    この種のミスマッチを検出しない
+- 「後出し」の時間的側面（実行中セッションへの設定反映）については、
+  client-server アーキテクチャでバックグラウンドサービスが permissions を
+  保持するため、設定変更反映にはサービスの再読み込みが絡む場面がある
+  （#43669 の再現手順に `service restart` を含む）。ただし本件を直接的に
+  示す open issue は確認できず、未検証事項として区別して記録する。
+- 伝聞をそのまま受け取らず一次情報で裏を取る過程で、リポジトリ移転
+  （`sst` → `anomalyco`）という前提の変化も捕捉できた。古い参照先で
+  検索すると「リソースが存在しない」になり、バグの有無の判断自体が
+  できなくなる。
+
+## フォローアップ
+
+- [ ] PR #53365 のマージ状況と、`./` ケースを含む追加修正の追跡
+- [ ] ローカル v2.2.1 での実再現テスト（`./` 付き deny の無視、
+      `~/` 展開の発動）—— 読み取り専用の本調査では実施せず、
+      テスト用プロジェクトで行う
+- [ ] 自身の `opencode.jsonc` に書いた deny ルールのパス表記監査
+      （`./` 付き、絶対パス直書きの混入確認）
+
+## 参照
+
+- [OpenCode V2 Permissions ドキュメント](https://opencode.ai/v2/docs/permissions)
+- [OpenCode V2 Config ドキュメント](https://opencode.ai/v2/docs/config)
+- [anomalyco/opencode#55728: permissions: deny rule for read tool is ignored](https://github.com/anomalyco/opencode/issues/55728)
+- [anomalyco/opencode PR #53365: fix(core): match absolute permission rules for relative paths](https://github.com/anomalyco/opencode/pull/53365)
+- [anomalyco/opencode#43669: Config permissions/agents overrides cannot override built-in agent policies](https://github.com/anomalyco/opencode/issues/43669)
+- [anomalyco/opencode#54044: agents: browser tools exposed despite agent-level "deny browser"](https://github.com/anomalyco/opencode/issues/54044)
+- [anomalyco/opencode#59564: permissions: external_directory check misses directory flags](https://github.com/anomalyco/opencode/issues/59564)
