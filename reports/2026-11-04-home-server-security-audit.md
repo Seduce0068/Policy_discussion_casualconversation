@@ -24,7 +24,7 @@ SSH 経由の読み取り調査で確認した。対象は Ubuntu 26.04.1 LTS（
 
 | 区分 | 件数 | 代表例 |
 | --- | --- | --- |
-| High | 3 | SSH パスワード認証、xrdp 全公開、AdGuard 管理画面 |
+| High | 3 | SSH パスワード認証、xrdp 全公開、Home Assistant |
 | Medium | 5 | VS Code ポート、正体不明ポート、docker グループ、ufw 未確認 |
 | Low | 3 | X11Forwarding、設定ファイル権限、LUKS なし |
 | 良好 | 7 | AppArmor、自動更新、カーネルハードニング、鍵権限 |
@@ -47,13 +47,14 @@ OpenSSH のデフォルトは `yes` のため、パスワード認証が有効�
 - 影響: RDP のブルートフォース、CredSSP 系脆弱性の標的になる。
 - 対策: 不要なら停止する。必要なら ufw で LAN と Tailscale だけに許可する。
 
-### H3: AdGuard Home 管理画面が 0.0.0.0:8123
+### H3: Home Assistant が 0.0.0.0:8123
 
 `0.0.0.0:8123` と `[::]:8123` で LISTEN している。
-管理画面は認証ありだが、LAN 内の任意の端末から到達できる。
+プロセスは `python3 -P -m homeassistant --config /config` で、root で稼働している。
+LAN 内の任意の端末から到達できる。
 
 - 影響: 認証情報のブルートフォース、設定改ざんのリスク。
-- 対策: `127.0.0.1` バインドに変更し、Tailscale 経由でアクセスする。
+- 対策: ufw で LAN と Tailscale だけに許可し、外部公開しない。
 
 ## Medium
 
@@ -64,12 +65,12 @@ OpenSSH のデフォルトは `yes` のため、パスワード認証が有効�
 
 - 対策: `ss -tulnp` で用途を確認し、不要なら VS Code のポートフォワードを停止する。
 
-### M2: 正体不明の *:18555
+### M2: go2rtc が *:18555 を外部公開
 
-`*:18555` が LISTEN しているが、一般ユーザー権限ではプロセスを特定できない。
-`127.0.0.1:18554` と対になっており、Ollama 関連の可能性がある。
+`*:18555` は `go2rtc` が LISTEN している。
+Home Assistant のカメラストリーミング用サービスで、root で稼働している。
 
-- 対策: `sudo ss -tulnp | grep 18555` で特定する。
+- 対策: ufw で遮断したままにし、Home Assistant の 8123 経由で利用する。
 
 ### M3: docker グループ所属は root 相当
 
@@ -130,15 +131,18 @@ LUKS は使われておらず、`/dev/nvme0n1p7` を直接マウントしてい�
 `Restart=always` と `RestartSec=3` により 3 秒間隔で再起動を繰り返している。
 
 - 影響: CPU 消費、ログ肥大化、ディスク圧迫。
-- 原因: ポート競合またはモデルロード失敗。`*:18555` が関係している可能性がある。
-- 対策: `journalctl -u ollama -n 50` で原因を確認し、設定を修正する。
+- 原因: `ollama` ユーザーのホームディレクトリ `/usr/share/ollama` が存在せず、
+  `mkdir /usr/share/ollama: permission denied` で起動に失敗していた。
+- 対策: `sudo mkdir -p /usr/share/ollama/.ollama` と
+  `sudo chown -R ollama:ollama /usr/share/ollama` で解消する。
 
 ## 対策手順
 
 ### 1. SSH の hardening
 
-```nu
-r#'PasswordAuthentication no
+```bash
+sudo tee /etc/ssh/sshd_config.d/10-hardening.conf > /dev/null <<'EOF'
+PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitRootLogin no
 X11Forwarding no
@@ -146,9 +150,9 @@ AllowAgentForwarding no
 MaxAuthTries 3
 ClientAliveInterval 300
 ClientAliveCountMax 2
-'# | ^sudo tee /etc/ssh/sshd_config.d/10-hardening.conf
-^sudo sshd -t
-^sudo systemctl reload ssh
+EOF
+sudo sshd -t
+sudo systemctl reload ssh
 ```
 
 設定を戻す場合は `10-hardening.conf` を削除し、`sshd -t` の後に reload する。
@@ -157,37 +161,42 @@ ClientAliveCountMax 2
 
 不要な場合:
 
-```nu
-^sudo systemctl disable --now xrdp xrdp-sesman
+```bash
+sudo systemctl disable --now xrdp xrdp-sesman
 ```
 
 必要な場合:
 
-```nu
-^sudo ufw allow from 192.168.128.0/24 to any port 3389 proto tcp
-^sudo ufw allow in on tailscale0 to any port 3389 proto tcp
-^sudo ufw deny 3389/tcp
+```bash
+sudo ufw allow from 192.168.128.0/24 to any port 3389 proto tcp
+sudo ufw allow in on tailscale0 to any port 3389 proto tcp
+sudo ufw deny 3389/tcp
 ```
 
-### 3. AdGuard Home のバインド変更
+### 3. Home Assistant の公開範囲
 
-`/opt/adguardhome/conf/AdGuardHome.yaml` の `http.address` を `127.0.0.1:8123` に変更し、
-サービスを再起動する。Tailscale 経由で使う場合は `tailscale serve` を使う。
+Home Assistant は `8123/tcp` で待ち受ける。ufw で LAN と Tailscale だけに許可し、
+ルーターのポート開放は行わない。
+
+```bash
+sudo ufw allow from 192.168.128.0/24 to any port 8123 proto tcp
+sudo ufw allow in on tailscale0 to any port 8123 proto tcp
+```
 
 ### 4. ufw の整理
 
-```nu
-^sudo ufw status numbered
-^sudo ufw default deny incoming
-^sudo ufw default allow outgoing
-^sudo ufw allow in on tailscale0
-^sudo ufw allow from 192.168.128.0/24 to any port 22 proto tcp
+```bash
+sudo ufw status numbered
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow from 192.168.128.0/24 to any port 22 proto tcp
+sudo ufw allow in on tailscale0 to any port 22 proto tcp
 ```
 
 ### 5. fail2ban（xrdp を残す場合）
 
-```nu
-^sudo apt install fail2ban
+```bash
+sudo apt install fail2ban
 ```
 
 `/etc/fail2ban/jail.local`:
@@ -208,16 +217,16 @@ port = 3389
 
 ### 6. 設定ファイルの権限
 
-```nu
-^chmod 600 ~/.config/opencode/opencode.jsonc ~/.config/opencode/opencode.jsonc.bak
+```bash
+chmod 600 "$HOME/.config/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc.bak"
 ```
 
 ### 7. 検証
 
-```nu
-^sudo sshd -T | grep -E "passwordauthentication|permitrootlogin|x11forwarding"
-^sudo ufw status verbose
-^sudo ss -tulnp | grep LISTEN
+```bash
+sudo sshd -T | grep -E "passwordauthentication|permitrootlogin|x11forwarding"
+sudo ufw status verbose
+sudo ss -tulnp | grep LISTEN
 ```
 
 ## 要 sudo 確認項目
@@ -226,9 +235,17 @@ port = 3389
 
 - `sudo sshd -T`
 - `sudo ufw status numbered`
-- `sudo ss -tulnp | grep 18555`
+- `sudo ss -tulnp | grep -E "18555|5746|8123|3389"`
 - `sudo journalctl -u ollama -n 50`
-- `sudo grep -E "address" /opt/adguardhome/conf/AdGuardHome.yaml`
+
+## 訂正
+
+2026-11-05 の実行確認で、初版の記述に次の誤りが見つかったため訂正した。
+
+- H3 の 8123 は AdGuard Home ではなく Home Assistant だった。
+- M2 の 18555 は正体不明ではなく go2rtc だった。
+- Ollama の再起動ループはポート競合ではなく、`/usr/share/ollama` の権限不足だった。
+- 対策手順のコード例を Nushell から Bash に統一した。
 
 ## 参照
 
