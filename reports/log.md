@@ -1,5 +1,9 @@
 # レポート更新履歴
 
+## 2026-11-07
+
+- 00:15 - [AgentRouter 無料枠の実態と日本語入力の回避策](2026-11-07-agentrouter-model-access.md) を追加。
+
 ## 2026-11-06
 
 - 00:40 - [自宅 Kubuntu の IPv6 有効化と外部到達性の評価](2026-11-06-ipv6-enablement-and-firewall.md) を追加。
