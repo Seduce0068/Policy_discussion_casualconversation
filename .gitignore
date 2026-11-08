@@ -1,0 +1,9 @@
+# ローカル実行環境（ブラウザプロファイル等）
+.opencode/
+
+# 一般的な生成物
+node_modules/
+target/
+dist/
+*.log
+.DS_Store
