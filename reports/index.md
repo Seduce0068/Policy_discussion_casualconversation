@@ -5,6 +5,9 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [放送ニュース透明性制度 現段階フル版](2026-11-09-broadcast-news-transparency-governance.md) | draft | 放送報道の情報種別透明化制度案を検証可能なPoCへ移行するためのGovernance・Manifest・Trust・Cross-review設計の統合ドラフト |
+| [オープン教材・Markdown・GitHub・AI家庭教師による教育DX構想](2026-11-09-education-dx-open-textbook-ai-tutor.md) | draft | 既存標準とクラウドサービスを活用し、構造化教材を制作・配布・再利用してAI家庭教師に接続する構想の調査・設計レポート |
+| [公共・非営利団体会計情報公開標準 v3（Requirements Draft WD 0.3）](2026-11-09-public-nonprofit-accounting-standard-v3-wd03.md) | draft | v2レビューからWD 0.3メタ仕様確定までの設計判断を統合した公共・非営利団体会計情報公開標準のフルドラフト |
 | [AgentRouter 無料枠の実態と日本語入力の回避策](2026-11-07-agentrouter-model-access.md) | review | AgentRouter のモデルアクセス・クォータ・日本語 content-blocked を実測し、コードポイント変換プラグインで恒久対策した調査報告 |
 | [自宅 Kubuntu の IPv6 有効化と外部到達性の評価](2026-11-06-ipv6-enablement-and-firewall.md) | review | HR02 の RA によるグローバル IPv6 取得、ufw の IPv6 ルール整備、外部到達性テストの結果と運用方針 |
 | [自宅 Kubuntu サーバのセキュリティ監査（2026-11-04）](2026-11-04-home-server-security-audit.md) | draft | Ubuntu 26.04.1 LTS の常駐サーバ化に伴う外部公開ポート・SSH・権限・更新状況を実測し、優先度付きの対策を整理した監査報告 |
