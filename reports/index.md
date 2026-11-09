@@ -6,6 +6,7 @@
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
 | [放送ニュース透明性制度 現段階フル版](2026-11-09-broadcast-news-transparency-governance.md) | draft | 放送報道の情報種別透明化制度案を検証可能なPoCへ移行するためのGovernance・Manifest・Trust・Cross-review設計の統合ドラフト |
+| [AIデータセンターの水道直結型ワンススルー冷却・静音化構想](2026-11-09-data-center-once-through-cooling.md) | draft | 水道水を独立した熱輸送媒体として熱交換器に通し、下水道へ排出する方式について、熱収支・水量・配管・水道事業コスト・排水・騒音・制度設計を札幌市の公開データで検討する。 |
 | [オープン教材・Markdown・GitHub・AI家庭教師による教育DX構想](2026-11-09-education-dx-open-textbook-ai-tutor.md) | draft | 既存標準とクラウドサービスを活用し、構造化教材を制作・配布・再利用してAI家庭教師に接続する構想の調査・設計レポート |
 | [政策レポート3本の横断整合性レビューと会計標準 v2→v3 差分評価](2026-11-09-policy-reports-cross-review.md) | draft | 会計透明化・放送透明性・教育DXの3レポートを横断比較し、共通設計原則・相違点・統合課題を整理するとともに、会計標準の v2 から v3 WD 0.3 への変更を要件レベルで評価した横断レビュー |
 | [公共・非営利団体会計情報公開標準 v3（Requirements Draft WD 0.3）](2026-11-09-public-nonprofit-accounting-standard-v3-wd03.md) | draft | v2レビューからWD 0.3メタ仕様確定までの設計判断を統合した公共・非営利団体会計情報公開標準のフルドラフト |
