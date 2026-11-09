@@ -2,8 +2,9 @@
 
 ## 2026-11-09
 
+- 22:18 - [会計情報公開標準 v2→v3（WD 0.3）差分評価](2026-11-09-public-nonprofit-accounting-v2-v3-diff.md) を追加。
 - 20:22 - [データセンターのワンススルー冷却](<2026-11-09-data-center-once-through-cooling.md>) を取り込み、検証上の留保を追記。
-- 20:16 - [政策レポート3本の横断整合性レビューと会計標準 v2→v3 差分評価](2026-11-09-policy-reports-cross-review.md) を追加。
+- 20:16 - 政策レポート3本の横断整合性レビューを作成（3本は別件との指摘を受け22:18に削除）。
 - 19:36 - [オープン教材・Markdown・GitHub・AI家庭教師による教育DX構想](2026-11-09-education-dx-open-textbook-ai-tutor.md) を追加。
 - 19:36 - [放送ニュース透明性制度 現段階フル版](2026-11-09-broadcast-news-transparency-governance.md) を追加。
 - 19:36 - [公共・非営利団体会計情報公開標準 v3（Requirements Draft WD 0.3）](2026-11-09-public-nonprofit-accounting-standard-v3-wd03.md)
