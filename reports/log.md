@@ -2,6 +2,10 @@
 
 ## 2026-11-09
 
+- 22:45 - [AI利用制限契約の適正化に関する政策提言](<2026-11-09-ai-usage-restriction-policy.md>)、
+  [同レビュー](<2026-11-09-ai-usage-restriction-policy-review.md>)、
+  [改訂版v2](<2026-11-09-ai-usage-restriction-policy-v2.md>) を追加。
+  原案は deprecated とし、レビューと独立レビューを反映した v2 を本版とした。
 - 22:18 - [会計情報公開標準 v2→v3（WD 0.3）差分評価](2026-11-09-public-nonprofit-accounting-v2-v3-diff.md) を追加。
 - 20:22 - [データセンターのワンススルー冷却](<2026-11-09-data-center-once-through-cooling.md>) を取り込み、検証上の留保を追記。
 - 20:16 - 政策レポート3本の横断整合性レビューを作成（3本は別件との指摘を受け22:18に削除）。
