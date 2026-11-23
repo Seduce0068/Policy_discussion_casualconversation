@@ -36,3 +36,16 @@ ops=$(printf '%s\n' "$changed" \
 if [ -n "$ops" ] && ! printf '%s\n' "$changed" | grep -qx 'log.md'; then
   echo "pre-commit: リポジトリ全体の変更です。log.md への追記を検討してください。" >&2
 fi
+
+# Secret scan: block the commit when a credential is found in the full history.
+if command -v betterleaks >/dev/null 2>&1; then
+  scan_output=$(betterleaks git . 2>&1) || {
+    printf '%s\n' "$scan_output" >&2
+    exit 1
+  }
+  printf '%s\n' "$scan_output" | grep -q 'no leaks found' || {
+    printf '%s\n' "$scan_output" >&2
+    echo 'pre-commit: betterleaks がシークレットを検出しました' >&2
+    exit 1
+  }
+fi

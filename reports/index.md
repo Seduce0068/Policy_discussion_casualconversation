@@ -5,6 +5,7 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [AIエージェント時代の秘密・機微情報管理のベストプラクティス調査](2026-11-24-ai-agent-secrets-management-best-practices.md) | draft | 2026年11月時点の一次情報をもとに、エージェント認証・動的シークレット・実行時制御・ローカル保管・規制要件を横断調査した |
 | [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md) | draft | GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度、エージェント適性、コミュニティ派生のリスクを実測と一次情報で評価した。 |
 | [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md) | draft | Seduce0068 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した |
 | [シェル言語別 AI エージェント誤り率の実測](2026-11-23-shell-agent-mistake-rate.md) | approved | bash / zsh / nushell / dash の4シェルに15問ずつ出題し、隔離環境で誤り率を計測した |
