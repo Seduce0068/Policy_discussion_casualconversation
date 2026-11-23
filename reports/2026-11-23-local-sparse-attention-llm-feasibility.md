@@ -1,11 +1,12 @@
 ---
 type: Report
 title: "ローカル LLM におけるスパースアテンション活用の実現可能性評価"
-description: "GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの実用的速度を一次情報と実測で評価した。"
+description: "GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度とエージェント適性を一次情報と実測で評価した。"
 tags:
   - llm
   - sparse-attention
   - local-inference
+  - agent
   - feasibility
 generated:
   by: "DeepSeek Harness"
@@ -19,12 +20,14 @@ status: draft
 動かない。ただしアテンションを線形化した Qwen3.5-4B を llama.cpp で動かせば、
 実機で 63〜65 tok/s の生成速度が出た。
 
-- 即時利用: 既存 Ollama の `qwen2.5:3b`。実測 87.9 tok/s で最速。
-- 本命構成: llama.cpp + `Qwen3.5-4B-Q4_K_M`。実測 63.7〜64.9 tok/s。
+- エージェント目的の推奨: llama.cpp + `Qwen3.5-4B-Q4_K_M`。工具呼び出し、
+  JSON スキーマ準拠、tool response 後の追従を実機で確認済み。
+- 速度・省メモリ最優先: `gemma-4-E2B-it-Q4_K_M`。実測 95.8 tok/s / 2.83 GB。
+- 即時利用: 既存 Ollama の `qwen2.5:3b`。実測 87.9 tok/s。
 - 真のスパースアテンション（DSA / NSA / QSA）: 巨大モデル限定で本環境では不可。
 
-重要な訂正が 2 点ある。第一に、Ollama 0.21.0 は `qwen3.5:4b` を HTTP 412
-（要新版）で拒否した。Ollama 経由ではなく llama.cpp の直接利用が必要である。
+重要な訂正が 2 点ある。第一に、Ollama 0.21.0 は `qwen3.5:4b` と `gemma4:e2b` を
+HTTP 412（要新版）で拒否した。Ollama 経由ではなく llama.cpp の直接利用が必要である。
 第二に、Qwen3.5 の Gated DeltaNet は線形アテンションであり、厳密な意味での
 スパースアテンションではない。用語の整理は後述する。
 
@@ -62,6 +65,8 @@ Hugging Face のモデルカード、Ollama と NVIDIA の公式ドキュメン�
 | `qwen2.5:7b` Q4（Ollama） | 22% CPU / 78% GPU, 5.4 GB | 13.9 tok/s | 135 tok/s |
 | 7b + FA/q8 KV（別ポート実験） | 22% CPU / 78% GPU, 5.3 GB | 16.8 tok/s | 未計測 |
 | `Qwen3.5-4B-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 2.6 GB ファイル | 63.7〜64.9 tok/s | 82〜121 tok/s |
+| `gemma-4-E2B-it-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 3.1 GB ファイル | 95.8 tok/s | 259〜270 tok/s |
+| `Qwen3.5-4B` を `-ngl 20` に変更 | 20 層 GPU, 3.4 GB 使用 | 9.2〜18.9 tok/s | 38〜39 tok/s |
 
 llama.cpp の起動条件は `-ngl 99 -c 16384 -ctk q8_0 -ctv q8_0` である。
 バイナリは [llama.cpp b12359 の CUDA 12.8 ビルド](https://github.com/ggml-org/llama.cpp/releases/tag/b12359)
@@ -138,7 +143,76 @@ Ampere/Ada/Hopper 限定で、Turing は別リポジトリの機能制限版に�
 FlashAttention-3/4 は Hopper/Blackwell 専用である。
 Ollama の Flash Attention は sm_75 で有効化できるが、7B の実測では
 16.8 tok/s と改善は限定的だった。KV cache の q8_0 量子化は
- Moment あたり 112 MiB に抑えられたものの、CPU オフロード比率は変わらなかった。
+トークンあたり 112 MiB に抑えられたものの、CPU オフロード比率は変わらなかった。
+
+## VRAM とメインメモリの併用
+
+仕組み上は可能だが、本環境（6GB VRAM / 62GB RAM）では実用的ではない。
+
+llama.cpp ではスパース用の KV と indexer キャッシュも通常の KV と同じ
+オフロード経路を使い、`-ngl` と `-kvo` が適用される。
+[issue #26549](https://github.com/ggml-org/llama.cpp/issues/26549) では
+DSA モデルを `--n-cpu-moe 35` で CPU に逃がし、32GB VRAM + 96GB DDR4 で
+7.2〜7.4 tok/s を出した例がある。しかし次の障壁がある。
+
+- スパース化は KV の読み出し行数を間引くだけで、確保サイズは `n_ctx` 由来のまま。
+  むしろ indexer 用 KV が追加される（[llama-kv-cache-dsa.cpp](https://github.com/ggml-org/llama.cpp/blob/master/src/llama-kv-cache-dsa.cpp)）。
+- SGLang の HiSparse は DSA の KV を CPU pinned memory に置く公式機能だが、
+  ホストメモリ目安は約 1TB で、PD 分散の decode インスタンス専用である。
+- DSA カーネル自体が Hopper / Blackwell 向けで、Turing sm_75 では動かない。
+- 本環境での実測では `-ngl 20` にすると VRAM は 3.4GB に減ったが、
+  生成速度は 9.2〜18.9 tok/s に低下した。
+
+## エージェント目的の品質比較
+
+llama.cpp の OpenAI 互換 API を使い、両モデルに同一のタスクを投げた。
+工具呼び出し、JSON スキーマ準拠、tool response 後の最終回答のすべてで
+両モデルとも正常に動作した。生成速度と VRAM では Gemma 4 E2B が有利だが、
+ベンチマークとコンテキスト長では Qwen3.5-4B が有利である。
+
+| 指標 | Qwen3.5-4B | Gemma 4 E2B |
+| --- | --- | --- |
+| 工具呼び出し（実機） | 正常 | 正常 |
+| JSON スキーマ準拠（実機） | 正常 | 正常 |
+| tool response 後の追従（実機） | 正常 | 正常 |
+| MMLU-Pro（自己報告） | 79.1 | 60.0 |
+| GPQA Diamond（自己報告） | 76.2 | 43.4 |
+| LiveCodeBench v6（自己報告） | 55.8 | 44.0 |
+| IFEval（自己報告） | 89.8 | 未掲載 |
+| BFCL-V4（自己報告） | 50.3 | 未掲載 |
+| TAU2-Bench（自己報告） | 79.9 | 24.5 |
+| コンテキスト | 262,144 | 128,000 |
+
+TAU2-Bench は Qwen が airline ドメインに独自修正を適用しており、
+Gemma の「average over 3」と条件が揃っていない。差の方向性は見えるが、
+数値の差自体は自前再現がない限り断定しない。独立ベンチは両モデルとも未掲載である。
+
+実装上の注意点は次のとおりである。
+
+- Qwen3.5 は既定で thinking モード。`max_tokens=400` では JSON 出力が
+  トークン上限で切れたため、実測では 1200 を指定した。マルチターンでは
+  履歴に思考内容を含めないこと。
+- Gemma 4 は `tool_calls[].function.arguments` を JSON 文字列ではなく辞書で
+  渡す必要がある。llama.cpp の tool call grammar には未修正バグがあり、
+  再帰的 JSON 引数で無限生成のリスクがある
+  （[issue #32561](https://github.com/ggml-org/llama.cpp/issues/32561)）。
+
+## Qwen 系譜と小型版の有無
+
+Qwen は 3.5 以降もバージョンアップしているが、**3B〜9B の小型版は 3.5 が最後**である。
+
+| 世代 | 公開 | モデル |
+| --- | --- | --- |
+| Qwen3.5 | 2026-02〜03 | 397B-A17B / 122B-A10B / 35B-A3B / 27B / 9B / 4B / 2B / 0.8B |
+| Qwen3.6 | 2026-04 | 27B / 35B-A3B |
+| Qwen3.8 | 2026-08 | 2.4T-A95B / 27B / Flash-Next（125B） |
+
+出典は [QwenLM/Qwen3.8 の README](https://github.com/QwenLM/Qwen3.8/blob/main/README.md) の
+News セクションである。Qwen3.8-Flash-Next は Qwen4 のプレビューで
+Gated DeltaNet + QSA（Qwen Sparse Attention）に進化しているが、
+125B 総パラメータ（6B 活性）+ 51B n-gram embedding + 4B MTP で本環境では論外である。
+ライセンスは 3.5 全サイズと 3.6/3.8-27B が Apache-2.0、
+Flash-Next は `qwen-community-1.0` で条項確認が必要である。
 
 ## 推奨構成
 
@@ -176,9 +250,12 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
 
 ## 未確認事項
 
-- 日本語長文・コーディングでの品質比較。実測は英語 350 トークン生成のみ。
+- BFCL / SWE-bench / TAU2-Bench の独立スコア。モデルカードの自己報告のみで、
+  自前のゴールデンセットによる定量評価は未実施。
+- 日本語長文のコーディング品質。実測は日本語の工具呼び出し・JSON ・
+  天気回答に限られる。
 - 32K / 128K コンテキストでの安定性と VRAM 消費。
-- Ollama を最新版へ更新した場合の `qwen3.5:4b` pull 可否。
+- Ollama を最新版へ更新した場合の `qwen3.5:4b` / `gemma4:e2b` pull 可否。
 - 2B QSA 実験モデルの sm_75 動作と実用速度。
 - 長時間稼働時の発熱・消費電力と、JIT キャッシュの永続性。
 
@@ -188,8 +265,14 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
 - [FlashMLA](https://github.com/deepseek-ai/FlashMLA)
 - [vLLM DSA 対応 issue](https://github.com/vllm-project/vllm/issues/66960)
 - [SGLang sm75 廃止 RFC](https://github.com/sgl-project/sglang/issues/6006)
+- [SGLang HiSparse guide](https://github.com/sgl-project/sglang/blob/main/docs/docs/advanced_features/hisparse_guide.mdx)
 - [llama.cpp の Qwen3.5 サポートコミット](https://github.com/ggml-org/llama.cpp/commit/fc0fe4004985d6749a7a05e250d161f9dbe41d65)
 - [llama.cpp の GDN CUDA カーネル](https://github.com/ggml-org/llama.cpp/blob/master/ggml/src/ggml-cuda/gated_delta_net.cu)
+- [llama.cpp の DSA KV キャッシュ](https://github.com/ggml-org/llama.cpp/blob/master/src/llama-kv-cache-dsa.cpp)
+- [llama.cpp の Gemma 4 chat parser](https://github.com/ggml-org/llama.cpp/pull/21418)
 - [Ollama qwen3.5 ライブラリ](https://ollama.com/library/qwen3.5)
+- [Qwen3.5-4B モデルカード](https://huggingface.co/Qwen/Qwen3.5-4B)
+- [Gemma 4 E2B モデルカード](https://huggingface.co/google/gemma-4-E2B-it)
+- [QwenLM/Qwen3.8 系譜](https://github.com/QwenLM/Qwen3.8/blob/main/README.md)
 - [KTransformers kt-kernel](https://github.com/kvcache-ai/ktransformers/blob/main/kt-kernel/README.md)
 - [NVIDIA CUDA 13.0 リリースノート](https://docs.nvidia.com/cuda/archive/13.0.0/cuda-toolkit-release-notes/index.html)

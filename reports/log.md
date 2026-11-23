@@ -2,6 +2,9 @@
 
 ## 2026-11-23
 
+- 19:02 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
+  を更新。Gemma 4 E2B の実測 95.8 tok/s、エージェント目的の実機比較、
+  Qwen 3.5 以降の系譜、VRAM＋メインメモリ併用の評価を追記。
 - 17:38 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   を追加。sm_75 / 6GB で Qwen3.5-4B を実測し 63〜65 tok/s を確認。
 - 13:44 - [シェル言語別 AI エージェント誤り率の実測](2026-11-23-shell-agent-mistake-rate.md)
