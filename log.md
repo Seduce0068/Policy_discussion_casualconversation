@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+- 01:20 - `.github/workflows/secret-scan.yml` を共通ワークフロー呼び出しへ
+  置き換えた。`Seduce0068/workflows` に `secret-gates.yml` を追加し、
+  `self-test.yml` と README を更新して `v1` タグを付け替えた（承認済み）。
 - 00:54 - `.githooks/pre-commit` に Betterleaks の全履歴スキャンを追加。
   検出時にコミットをブロックする。`.github/workflows/secret-scan.yml` を
   追加し、CI でも全履歴を走査してシークレットを検出したら失敗させる。
