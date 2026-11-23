@@ -221,10 +221,23 @@ Flash-Next は `qwen-community-1.0` で条項確認が必要である。
 | 分類 | 代表例 | 6GB 適合 | エージェント用途 |
 | --- | --- | --- | --- |
 | 量子化のみ | unsloth / ggml-org / bartowski / Google 公式 QAT | ○ | 推奨 |
-| 検閲解除 | HauhauCS Uncensored / Heretic / abliterated | ○ | 除外 |
-| 蒸留・マージ | DeepSeek-V4-Pro-Qwen3.5-4B、Jackrong 2B Claude 蒸留 | ○ | 要注意 |
+| 蒸留（Heretic なし） | Jackrong DeepSeek-V4-Pro-Qwen3.5-4B、Jackrong 2B Claude 蒸留 | ○ | 候補（要検証） |
+| 検閲解除 | HauhauCS Uncensored、xtools-at DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic、Heretic / abliterated | ○ | 除外 |
 | スパース実験 | tvall43 2B QSA、zephel01 9B QSA | × | 除外 |
 | Draft モデル | nvidia Qwen3.5-4B-Qwen3.8-27B-Draft | × | 対象外 |
+
+Jackrong の蒸留版と Heretic 版は別物である。
+[Jackrong の DeepSeek-V4-Pro-Qwen3.5-4B](https://huggingface.co/Jackrong/DeepSeek-V4-Pro-Qwen3.5-4B)
+は DeepSeek-V4-Pro の応答約 25 万件で蒸留したもので、Heretic は適用されていない。
+これに [Heretic v2.0.0 を適用したのが xtools-at 版](https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic) で、
+拒否率は 5/100（ベースは 99/100）、KL 分散は 0.0378 である。
+したがって除外すべきは Heretic 版であり、蒸留版そのものではない。
+
+[Jackrong 2B Claude 蒸留](https://huggingface.co/Jackrong/Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled-GGUF)
+のモデルカードには Heretic や検閲解除の記述はなく、ライセンスは Apache-2.0 である。
+固有の安全性リスクは本次調査では確認できなかった。残る懸念は蒸留モデルの
+品質が未検証であることと、Claude の出力を教師データにしたことの
+ライセンス上の扱いだが、後者は出典がなく未確認である。
 
 量子化のみの派生では unsloth の Qwen3.5-4B Q4_K_M（2.74GB）が
 最も実績がある。ggml-org 版は 2026-11-12 公開で 3.03GB だが、
