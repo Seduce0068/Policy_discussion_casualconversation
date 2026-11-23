@@ -2,6 +2,9 @@
 
 ## 2026-11-23
 
+- 19:38 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
+  を更新。コミュニティ派生の分類・リスク、日本語特化版の実測
+  （97〜99 tok/s）を追記。
 - 19:02 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   を更新。Gemma 4 E2B の実測 95.8 tok/s、エージェント目的の実機比較、
   Qwen 3.5 以降の系譜、VRAM＋メインメモリ併用の評価を追記。

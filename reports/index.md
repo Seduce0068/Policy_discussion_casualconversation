@@ -5,7 +5,7 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
-| [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md) | draft | GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度とエージェント適性を一次情報と実測で評価した。 |
+| [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md) | draft | GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度、エージェント適性、コミュニティ派生のリスクを実測と一次情報で評価した。 |
 | [シェル言語別 AI エージェント誤り率の実測](2026-11-23-shell-agent-mistake-rate.md) | approved | bash / zsh / nushell / dash の4シェルに15問ずつ出題し、隔離環境で誤り率を計測した |
 | [AI利用制限契約の適正化に関する政策提言 レビューレポート](2026-11-09-ai-usage-restriction-policy-review.md) | draft | 政策提言案の事実記述を一次情報で検証し、論理・法制度・制度設計上の課題と修正案を優先度付きで整理したレビュー。 |
 | [AI利用制限契約の適正化に関する政策提言 v2（レビュー反映改訂版）](2026-11-09-ai-usage-restriction-policy-v2.md) | draft | 原案とレビューを踏まえ、立法事実の明示、禁止理由の類型化、無効化対象の限定、既存制度との接続、ソフトロー先行の実装順序を組み込み、独立レビューの指摘も反映した政策提言の改訂版 |

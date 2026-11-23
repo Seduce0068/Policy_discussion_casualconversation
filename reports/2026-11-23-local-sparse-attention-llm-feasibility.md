@@ -1,7 +1,7 @@
 ---
 type: Report
 title: "ローカル LLM におけるスパースアテンション活用の実現可能性評価"
-description: "GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度とエージェント適性を一次情報と実測で評価した。"
+description: "GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度、エージェント適性、コミュニティ派生のリスクを実測と一次情報で評価した。"
 tags:
   - llm
   - sparse-attention
@@ -214,6 +214,65 @@ Gated DeltaNet + QSA（Qwen Sparse Attention）に進化しているが、
 ライセンスは 3.5 全サイズと 3.6/3.8-27B が Apache-2.0、
 Flash-Next は `qwen-community-1.0` で条項確認が必要である。
 
+## コミュニティ派生モデル
+
+公式以外にも多数の派生がある。6GB 環境では次の 5 類に分けられる。
+
+| 分類 | 代表例 | 6GB 適合 | エージェント用途 |
+| --- | --- | --- | --- |
+| 量子化のみ | unsloth / ggml-org / bartowski / Google 公式 QAT | ○ | 推奨 |
+| 検閲解除 | HauhauCS Uncensored / Heretic / abliterated | ○ | 除外 |
+| 蒸留・マージ | DeepSeek-V4-Pro-Qwen3.5-4B、Jackrong 2B Claude 蒸留 | ○ | 要注意 |
+| スパース実験 | tvall43 2B QSA、zephel01 9B QSA | × | 除外 |
+| Draft モデル | nvidia Qwen3.5-4B-Qwen3.8-27B-Draft | × | 対象外 |
+
+量子化のみの派生では unsloth の Qwen3.5-4B Q4_K_M（2.74GB）が
+最も実績がある。ggml-org 版は 2026-11-12 公開で 3.03GB だが、
+モデルカードが自動変換のまま TODO である。
+
+[nvidia の Draft モデル](https://huggingface.co/nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft)
+は **Qwen3.8-27B の外部ドラフト**であり、4B 本体を速くするモデルではない。
+6GB 環境では対象外で、ライセンスも NVIDIA Open Model Agreement である。
+
+スパース実験系は本環境では使えない。
+[2B QSA](https://huggingface.co/tvall43/Qwen3.5-2B-heretic-QSA-experiments) は
+自前の llama.cpp パッチと Vulkan/ROCm が必要で、作者自身が
+`it is not a production model` と明言している。
+K=2048 で PPL が +20.2%、短上下文の NIAH は 1/5 に崩壊した。
+9B QSA は 128K コンテキストに 11GB 超の GPU を要し、
+stock llama.cpp は indexer テンソルを読み込めない。
+確認した範囲では、**6GB / sm_75 で本物の top-k スパースを実用レベルで
+動かせるコミュニティ版は存在しない**。
+
+日本語特化版として
+[dahara1/gemma-4-E2B-it-UD-japanese-imatrix](https://huggingface.co/dahara1/gemma-4-E2B-it-UD-japanese-imatrix)
+も試した。日本語キャリブレーションと Unsloth Dynamic Quantization 2.0 を
+使った Q4_K_M（3.11GB）で、実測は 97.0〜99.6 tok/s / VRAM 3.01GB だった。
+公式 E2B の 95.8 tok/s / 2.83GB とほぼ同等で、明確な優位性は確認できなかった。
+
+### リスクと軽減策
+
+エージェント用途では次のリスクが敵対検証で確認された。
+
+- **安全性**: Heretic は既定で拒否抑圧を行い、HauhauCS 版は
+  `0/465 refusals` を謳う。拒否が消えてもツール実行能力は残るため、
+  モデル側の安全に依存せずツール層で拒否・承認を実装する。
+- **ライセンス**: Apache-2.0 派生でも改変通知と LICENSE 同梱が必須。
+  HF の license タグは自己申告で、base_model チェーンと本文を照合する。
+- **サプライチェーン**: GGUF には署名・完全性検証の規定がなく、
+  chat_template がモデル内に埋め込まれる。細工された GGUF で
+  llama.cpp が `GGML_ASSERT` で abort する例もある
+  （[issue #32821](https://github.com/ggml-org/llama.cpp/issues/32821)）。
+- **信頼性**: MTP/draft 混在でコードの重複・欠落、
+  低ビット量子化で NaN の `GGGG` 出力、speculative decoding で
+  greedy 出力が変わる例が報告されている。
+
+軽減策は、公式 GGUF のみを採用して sha256 を固定すること、
+`uncensored` / `abliterated` / `heretic` 系をレジストリから除外すること、
+エージェントはネットワーク無効のコンテナ・読み取り専用 FS で起動し、
+破壊操作には Human-in-the-loop を必須とすることである
+（[OWASP LLM06](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/main/2_0_vulns/LLM06_ExcessiveAgency.md)）。
+
 ## 推奨構成
 
 ### 段階 1：既存資産で即座に使う
@@ -254,6 +313,8 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
   自前のゴールデンセットによる定量評価は未実施。
 - 日本語長文のコーディング品質。実測は日本語の工具呼び出し・JSON ・
   天気回答に限られる。
+- コミュニティ派生（蒸留・マージ・heretic）の品質比較。日本語特化版の
+  速度のみ実測し、公式版とのタスク成功率の差は未検証。
 - 32K / 128K コンテキストでの安定性と VRAM 消費。
 - Ollama を最新版へ更新した場合の `qwen3.5:4b` / `gemma4:e2b` pull 可否。
 - 2B QSA 実験モデルの sm_75 動作と実用速度。
@@ -274,5 +335,11 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
 - [Qwen3.5-4B モデルカード](https://huggingface.co/Qwen/Qwen3.5-4B)
 - [Gemma 4 E2B モデルカード](https://huggingface.co/google/gemma-4-E2B-it)
 - [QwenLM/Qwen3.8 系譜](https://github.com/QwenLM/Qwen3.8/blob/main/README.md)
+- [unsloth Qwen3.5-4B GGUF](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)
+- [HauhauCS Qwen3.5-4B Uncensored](https://huggingface.co/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive)
+- [2B QSA 実験](https://huggingface.co/tvall43/Qwen3.5-2B-heretic-QSA-experiments)
+- [Gemma 4 E2B 日本語 imatrix](https://huggingface.co/dahara1/gemma-4-E2B-it-UD-japanese-imatrix)
+- [Heretic プロジェクト](https://github.com/p-e-w/heretic)
+- [OWASP LLM06 Excessive Agency](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/main/2_0_vulns/LLM06_ExcessiveAgency.md)
 - [KTransformers kt-kernel](https://github.com/kvcache-ai/ktransformers/blob/main/kt-kernel/README.md)
 - [NVIDIA CUDA 13.0 リリースノート](https://docs.nvidia.com/cuda/archive/13.0.0/cuda-toolkit-release-notes/index.html)
