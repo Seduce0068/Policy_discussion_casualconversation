@@ -229,8 +229,8 @@ Flash-Next は `qwen-community-1.0` で条項確認が必要である。
 Jackrong の蒸留版と Heretic 版は別物である。
 [Jackrong の DeepSeek-V4-Pro-Qwen3.5-4B](https://huggingface.co/Jackrong/DeepSeek-V4-Pro-Qwen3.5-4B)
 は DeepSeek-V4-Pro の応答約 25 万件で蒸留したもので、Heretic は適用されていない。
-これに [Heretic v2.0.0 を適用したのが xtools-at 版](https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic) で、
-拒否率は 5/100（ベースは 99/100）、KL 分散は 0.0378 である。
+これに [Heretic v2.0.0 を適用した xtools-at 版](https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic)
+は拒否率が 5/100（ベースは 99/100）、KL 分散は 0.0378 である。
 したがって除外すべきは Heretic 版であり、蒸留版そのものではない。
 
 [Jackrong 2B Claude 蒸留](https://huggingface.co/Jackrong/Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled-GGUF)
