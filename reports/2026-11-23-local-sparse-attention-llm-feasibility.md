@@ -331,24 +331,35 @@ stock llama.cpp は indexer テンソルを読み込めない。
 実測 87.9 tok/s、100% GPU、消費 VRAM 2.4 GB で最も高速である。
 品質より速度を優先する対話・要約・分類タスク向け。
 
-### 段階 2：線形アテンションを活用する本命構成
+### 段階 2：線形アテンションを活用する本命構成（構築済み）
 
-llama.cpp の CUDA ビルドと Qwen3.5-4B Q4_K_M GGUF を配置し、
-次の条件で起動する（一時ディレクトリでの検証済み）。
+2026-11-23 時点で本環境に構築済みである。配置先は次のとおり。
+
+| 項目 | パス |
+| --- | --- |
+| モデル | `~/models/qwen35-4b-Q4_K_M.gguf`（2.74 GB、SHA256 先頭 `00fe7986ff5f6b463e624558`） |
+| llama.cpp | `~/.local/lib/llama.cpp/b12359/`（248 MB、CUDA 12.8 ビルド） |
+| 起動スクリプト | `~/.local/bin/llm-qwen` |
+
+起動は次の 1 コマンドで行う。
 
 ```bash
-cd /tmp/llm-sparse-test
-export CUDA_CACHE_MAXSIZE=4294967296
-./llama-b12359/llama-server \
-  -m Qwen3.5-4B-Q4_K_M.gguf \
-  -ngl 99 -c 16384 -ctk q8_0 -ctv q8_0 \
-  --host 127.0.0.1 --port 18080
+~/.local/bin/llm-qwen
 ```
 
-初回起動後は一度 warm-up リクエストを送り、必要ならプロセスを再起動して
-CUDA キャッシュを効かせる。実測は decode 63.7〜64.9 tok/s である。
+スクリプトは `-ngl 99 -c 16384 -ctk q8_0 -ctv q8_0 --host 127.0.0.1
+--port 18080` を固定し、`CUDA_CACHE_MAXSIZE=4294967296` を設定する。
+`LLM_PORT` / `LLM_CTX` 環境変数、または追加引数で上書きできる。
+`bash -n` / `shellcheck` / `shfmt -d` はすべて通過している。
+
+起動後の検証では `/health` が `{"status":"ok"}` を返し、
+工具呼び出し（`get_weather(city=東京)`）も正常だった。
+VRAM 使用量は 4.7 GB で、6 GB 内に収まる。
+実測の decode は 63.7〜64.9 tok/s である。
+初回起動時は PTX JIT で prompt eval が遅れるため、一度暖機してから
+プロセスを再起動すると 82〜121 tok/s に回復する。
 モデルは [unsloth/Qwen3.5-4B-GGUF](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)
-から取得できる。同アーキテクチャの RTX 2060 6GB での
+から取得した。同アーキテクチャの RTX 2060 6GB での
 [56.1 tok/s 報告](https://github.com/ggml-org/llama.cpp/issues/29513)もある。
 
 ### 段階 3：真のスパースアテンションを使う場合
