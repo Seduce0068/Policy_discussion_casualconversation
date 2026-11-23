@@ -22,7 +22,11 @@ status: draft
 
 - エージェント目的の推奨: llama.cpp + `Qwen3.5-4B-Q4_K_M`。工具呼び出し、
   JSON スキーマ準拠、tool response 後の追従を実機で確認済み。
-- 速度・省メモリ最優先: `gemma-4-E2B-it-Q4_K_M`。実測 95.8 tok/s / 2.83 GB。
+- 速度最優先: `Jackrong 2B Claude 蒸留`。実測 125 tok/s / 2.85 GB。
+  ただし tool response 後の出力が冗長。
+- 速度・省メモリのバランス: `gemma-4-E2B-it-Q4_K_M`。実測 95.8 tok/s / 2.83 GB。
+- STEM 特化: `Jackrong DeepSeek-V4-Pro-Qwen3.5-4B`。実測 65 tok/s / 4.89 GB。
+  ツールは動作するが JSON 内容は Qwen3.5-4B より雑。
 - 即時利用: 既存 Ollama の `qwen2.5:3b`。実測 87.9 tok/s。
 - 真のスパースアテンション（DSA / NSA / QSA）: 巨大モデル限定で本環境では不可。
 
@@ -67,6 +71,8 @@ Hugging Face のモデルカード、Ollama と NVIDIA の公式ドキュメン�
 | `Qwen3.5-4B-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 2.6 GB ファイル | 63.7〜64.9 tok/s | 82〜121 tok/s |
 | `gemma-4-E2B-it-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 3.1 GB ファイル | 95.8 tok/s | 259〜270 tok/s |
 | `gemma-4-E2B-it-UD-japanese-imatrix` Q4_K_M（llama.cpp） | 全 99 層 GPU, 3.1 GB ファイル | 97.0〜99.6 tok/s | 264〜277 tok/s |
+| `Jackrong 2B Claude 蒸留` Q4_K_M（llama.cpp） | 全 99 層 GPU, 1.27 GB ファイル | 119.3〜126.0 tok/s | 129〜266 tok/s |
+| `Jackrong DeepSeek-V4-Pro-Qwen3.5-4B` Q4_K_M（llama.cpp） | 全 99 層 GPU, 2.78 GB ファイル | 63.5〜65.5 tok/s | 69〜115 tok/s |
 | `Qwen3.5-4B` を `-ngl 20` に変更 | 20 層 GPU, 3.4 GB 使用 | 9.2〜18.9 tok/s | 38〜39 tok/s |
 
 llama.cpp の起動条件は `-ngl 99 -c 16384 -ctk q8_0 -ctv q8_0` である。
@@ -171,18 +177,28 @@ llama.cpp の OpenAI 互換 API を使い、両モデルに同一のタスクを
 両モデルとも正常に動作した。生成速度と VRAM では Gemma 4 E2B が有利だが、
 ベンチマークとコンテキスト長では Qwen3.5-4B が有利である。
 
-| 指標 | Qwen3.5-4B | Gemma 4 E2B |
-| --- | --- | --- |
-| 工具呼び出し（実機） | 正常 | 正常 |
-| JSON スキーマ準拠（実機） | 正常 | 正常 |
-| tool response 後の追従（実機） | 正常 | 正常 |
-| MMLU-Pro（自己報告） | 79.1 | 60.0 |
-| GPQA Diamond（自己報告） | 76.2 | 43.4 |
-| LiveCodeBench v6（自己報告） | 55.8 | 44.0 |
-| IFEval（自己報告） | 89.8 | 未掲載 |
-| BFCL-V4（自己報告） | 50.3 | 未掲載 |
-| TAU2-Bench（自己報告） | 79.9 | 24.5 |
-| コンテキスト | 262,144 | 128,000 |
+| 指標 | Qwen3.5-4B | Gemma 4 E2B | Jackrong 2B Claude 蒸留 | Jackrong DeepSeek-V4-Pro 4B |
+| --- | --- | --- | --- | --- |
+| 工具呼び出し（実機） | 正常 | 正常 | 正常 | 正常 |
+| JSON スキーマ準拠（実機） | 正常 | 正常 | 正常 | 正常 |
+| tool response 後の追従（実機） | 正常 | 正常 | 正常 | 正常 |
+| MMLU-Pro（自己報告） | 79.1 | 60.0 | 未掲載 | STEM サブセットのみ |
+| GPQA Diamond（自己報告） | 76.2 | 43.4 | 未掲載 | 未掲載 |
+| LiveCodeBench v6（自己報告） | 55.8 | 44.0 | 未掲載 | 未掲載（コード学習なし） |
+| IFEval（自己報告） | 89.8 | 未掲載 | 未掲載 | 未掲載 |
+| BFCL-V4（自己報告） | 50.3 | 未掲載 | 未掲載 | 未掲載 |
+| TAU2-Bench（自己報告） | 79.9 | 24.5 | 未掲載 | 未掲載 |
+| コンテキスト | 262,144 | 128,000 | 262,144 | 262,144 |
+| decode（実機） | 64 tok/s | 96 tok/s | 125 tok/s | 65 tok/s |
+| VRAM（実機） | 5.3 GB | 2.83 GB | 2.85 GB | 4.89 GB |
+
+4 モデルとも工具呼び出し・JSON・tool response 後の追従は実機で正常だった。
+Jackrong 4B のモデルカードは `coding and tool-use transfer have not yet been
+established for the 4B release` と明記するが、今回の単純なツール定義では
+正常に動作した。ただし JSON の内容は Qwen3.5-4B より雑で、
+季節の説明に重複や不自然な項目（`お中元` が夏と秋の両方に出現）が見られた。
+Jackrong 2B は tool response 後に見出しと「ツールによる取得」節を
+自主的に追加するなど、出力が冗長である。
 
 TAU2-Bench は Qwen が airline ドメインに独自修正を適用しており、
 Gemma の「average over 3」と条件が揃っていない。差の方向性は見えるが、
@@ -222,7 +238,7 @@ Flash-Next は `qwen-community-1.0` で条項確認が必要である。
 | 分類 | 代表例 | 6GB 適合 | エージェント用途 |
 | --- | --- | --- | --- |
 | 量子化のみ | unsloth / ggml-org / bartowski / Google 公式 QAT | ○ | 推奨 |
-| 蒸留（Heretic なし） | Jackrong DeepSeek-V4-Pro-Qwen3.5-4B、Jackrong 2B Claude 蒸留 | ○ | 候補（要検証） |
+| 蒸留（Heretic なし） | Jackrong DeepSeek-V4-Pro-Qwen3.5-4B、Jackrong 2B Claude 蒸留 | ○ | 検証済み（下記） |
 | 検閲解除 | HauhauCS Uncensored、xtools-at DeepSeek-V4-Pro-Qwen3.5-4B-UNCENSORED-heretic、Heretic / abliterated | ○ | 除外 |
 | スパース実験 | tvall43 2B QSA、zephel01 9B QSA | × | 除外 |
 | Draft モデル | nvidia Qwen3.5-4B-Qwen3.8-27B-Draft | × | 対象外 |
@@ -236,9 +252,10 @@ Jackrong の蒸留版と Heretic 版は別物である。
 
 [Jackrong 2B Claude 蒸留](https://huggingface.co/Jackrong/Qwen3.5-2B-Claude-4.6-Opus-Reasoning-Distilled-GGUF)
 のモデルカードには Heretic や検閲解除の記述はなく、ライセンスは Apache-2.0 である。
-固有の安全性リスクは本次調査では確認できなかった。残る懸念は蒸留モデルの
-品質が未検証であることと、Claude の出力を教師データにしたことの
-ライセンス上の扱いだが、後者は出典がなく未確認である。
+固有の安全性リスクは確認できなかった。両モデルとも実機検証を実施し、
+速度・工具呼び出し・JSON 遵守・tool response 追従のすべてで正常に動作した
+（詳細は「エージェント目的の品質比較」を参照）。
+Claude の出力を教師データにしたことのライセンス上の扱いは出典がなく未確認である。
 
 量子化のみの派生では unsloth の Qwen3.5-4B Q4_K_M（2.74GB）が
 最も実績がある。ggml-org 版は 2026-11-12 公開で 3.03GB だが、
@@ -327,8 +344,9 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
   自前のゴールデンセットによる定量評価は未実施。
 - 日本語長文のコーディング品質。実測は日本語の工具呼び出し・JSON ・
   天気回答に限られる。
-- コミュニティ派生（蒸留・マージ・heretic）の品質比較。日本語特化版の
-  速度のみ実測し、公式版とのタスク成功率の差は未検証。
+- コミュニティ蒸留版のタスク成功率。実機では工具呼び出し・JSON・
+  tool response 追従が正常なことを確認したが、ゴールデンセットによる
+  定量比較は未実施。Jackrong 4B は JSON の内容に不自然な項目が見られた。
 - 32K / 128K コンテキストでの安定性と VRAM 消費。
 - Ollama を最新版へ更新した場合の `qwen3.5:4b` / `gemma4:e2b` pull 可否。
 - 2B QSA 実験モデルの sm_75 動作と実用速度。

@@ -2,6 +2,9 @@
 
 ## 2026-11-23
 
+- 21:24 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
+  に Jackrong 蒸留 2 モデルの実機検証結果を追記。2B は 125 tok/s、
+  4B は 65 tok/s。両者とも工具呼び出し・JSON・追従は正常。
 - 20:06 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   の速度比較表に日本語特化 Gemma の実測値を追記。
 - 20:01 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
