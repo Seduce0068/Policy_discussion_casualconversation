@@ -2,6 +2,9 @@
 
 ## 2026-11-23
 
+- 22:55 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)
+  を更新。旧ユーザー名 onoderakeita が 404 で新名へリネーム済みであることを確定し、
+  未確認事項を修正。漏れていた 4 リポはすべて fork のため対象外と明記。
 - 22:28 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   に unsloth 量子化 4 種の実測を追記。Q4_K_M が最速で推奨と判定。
 - 21:38 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)

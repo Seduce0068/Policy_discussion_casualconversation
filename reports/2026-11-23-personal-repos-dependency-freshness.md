@@ -47,8 +47,10 @@ status: "draft"
 
 ### 除外・未確認
 
-- `onoderakeita` アカウントのリポ一覧は検索権限エラーで列挙できず、対象外とした。
-  ただし `onoderakeita/workflows` 自体は到達可能で、v1 の SHA は `Seduce0068/workflows` と同一だった。
+- 旧ユーザー名 `onoderakeita` は 2026-11-22 に `Seduce0068` へリネーム済みで、
+  GitHub API 上は 404（ユーザー自体が存在しない）。旧名配下に独立したリポは存在しない。
+- 認証ユーザー視点で見つかった `opencode` / `OpenCodeRust` / `UserScripts` / `ZenzaWatch` の
+  4 リポはすべて fork であり、個人が管理するオリジナルリポではないため対象外とした。
 - 実際の `cargo update` / `npm update` / ビルド / テストは実施していない。
   本レポートは静的調査であり、更新後の互換性は未検証である。
 - 推移依存を全件網羅していない。直接依存と明示ピンを優先した。
@@ -180,6 +182,10 @@ status: "draft"
 - 子エージェントは `onoderakeita/workflows` の到達性を「未確認」としていたが、
   親が GitHub MCP で確認したところリポは実在し、v1 の SHA は
   `b7675efd8a9a84ebc5b560da628d1a82f3fbf98f` で `Seduce0068/workflows` と同一だった。
+  フォローアップで `GET /users/onoderakeita` と `GET /users/onoderakeita/repos` が
+  いずれも 404 であること、`GET /repos/onoderakeita/workflows` が
+  `Seduce0068/workflows` へリダイレクトされることを確認し、リネームが確定した。
+  `gh auth status` の表示は旧名のままだが、`gh api user` の `login` は `Seduce0068` である。
 - 子エージェントは cargo-deny の統一先を 0.21.0 としていたが、
   最新リリースは 2026-11-19 公開の 0.22.0 だった。本レポートでは 0.22.0 を採用した。
 
@@ -200,7 +206,8 @@ status: "draft"
 - 更新後のビルド・テストは未実施。互換性は推奨事項であって確認済みではない。
 - Node 22 のサポート終了時期、および `@wdio/tauri-service` の WDIO 10 対応版の有無は未確認。
 - `src/` 配下のコードを読んでいないため、宣言バージョンが実際に使う API と整合するかは未検証。
-- `onoderakeita` 配下の他リポは列挙できず、チェック対象外とした。
+- 旧名 `onoderakeita` 配下のリポはリネームにより存在しないことを確認済み。
+  ただし fork 4 リポの依存は未調査であり、必要なら別途チェックする。
 
 ## 出典
 
@@ -209,4 +216,6 @@ status: "draft"
 - [npm registry](https://registry.npmjs.org/typescript/latest)
 - [Node.js dist index](https://nodejs.org/dist/index.json)
 - [Seduce0068/workflows tags](https://api.github.com/repos/Seduce0068/workflows/git/refs/tags/v1)
+- [旧ユーザー名 onoderakeita（404）](https://api.github.com/users/onoderakeita)
+- [認証ユーザー Seduce0068](https://api.github.com/user)
 - [各リポジトリのマニフェストとワークフロー](https://github.com/Seduce0068)
