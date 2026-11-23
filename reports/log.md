@@ -2,6 +2,8 @@
 
 ## 2026-11-23
 
+- 20:06 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
+  の速度比較表に日本語特化 Gemma の実測値を追記。
 - 20:01 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   の分類表を訂正。DeepSeek 蒸留版と Heretic 適用版を分離し、
   Jackrong 2B 蒸留の固有リスクは未確認と明記。
