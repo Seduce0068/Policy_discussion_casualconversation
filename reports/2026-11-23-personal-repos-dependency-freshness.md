@@ -1,7 +1,7 @@
 ---
 type: Report
 title: "個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック"
-description: "Seduce0068 配下 27 リポジトリのマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
+description: "Seduce0068 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
 tags:
   - dependency
   - audit
@@ -16,9 +16,10 @@ status: "draft"
 
 ## 概要
 
-`github.com/Seduce0068/*` の 27 リポジトリを対象に、依存ライブラリ・言語/ツールチェーン・CI アクションの
-ピン留めが最新かを静的調査した。確認時刻は `2026-11-23T21:24:13+09:00` 以降、
-レポート確定は `2026-11-23T21:38:41+09:00` である。
+`github.com/Seduce0068/*` の 31 リポジトリ（オリジナル 27 + fork 4）を対象に、
+依存ライブラリ・言語/ツールチェーン・CI アクションのピン留めが最新かを静的調査した。
+初回確認は `2026-11-23T21:24:13+09:00` 以降、fork の追加調査は
+`2026-11-23T23:18:47+09:00` 時点である。
 
 結論は次のとおり。
 
@@ -50,7 +51,7 @@ status: "draft"
 - 旧ユーザー名 `onoderakeita` は 2026-11-22 に `Seduce0068` へリネーム済みで、
   GitHub API 上は 404（ユーザー自体が存在しない）。旧名配下に独立したリポは存在しない。
 - 認証ユーザー視点で見つかった `opencode` / `OpenCodeRust` / `UserScripts` / `ZenzaWatch` の
-  4 リポはすべて fork であり、個人が管理するオリジナルリポではないため対象外とした。
+  4 リポは fork だが、ユーザー指示により個人リポとして追加調査した（後述）。
 - 実際の `cargo update` / `npm update` / ビルド / テストは実施していない。
   本レポートは静的調査であり、更新後の互換性は未検証である。
 - 推移依存を全件網羅していない。直接依存と明示ピンを優先した。
@@ -177,6 +178,22 @@ status: "draft"
 `agents` は設定ファイル主体で、今回の走査範囲では更新候補は検出されなかった。
 ユーザースクリプト系 3 リポは npm/Rust のマニフェストを持たない。
 
+### 追加調査: fork 4 リポ
+
+fork は上流の追従関係があるため、「最新版に上げる」ことが常に正しいとは限らない。
+以下の判定はローカル fork の現状に対するもので、上流との差分は未調査である。
+
+| リポ | マニフェスト | 主な更新候補 | 判定 |
+| --- | --- | --- | --- |
+| opencode | `package.json` / `bun.lock`（bun@1.4.4、workspace catalog） | bun 1.4.5、`@playwright/test` 1.60.0→1.65.1、oxlint 1.60.0→1.94.0、turbo 2.10.2→2.11.13、`@types/node` 24.12.2→26.6.6、vite は catalog 7.3.7 と patch 8.2.4 が不整合（最新 8.3.8）、solid-js 1.9.17→2.0.3（メジャー） | catalog と overrides で管理。上流の更新方針に従う |
+| OpenCodeRust | `Cargo.toml` / `Cargo.lock` / `renovate.json` | `oxc_*` `=0.154.0`→0.160.0（exact pin）、notify lock 8.2.2→9.0.0、walkdir 2.5.0→2.5.1、toml lock 1.2.1→1.2.2。sqlx 0.9.1 / axum 0.8.9 / tokio 1.54.1 / clap 4.6.9 は最新 | MSRV 1.97（1.100.0 で検証済みのコメントあり）。renovate 設定済み |
+| UserScripts | なし（ユーザースクリプトのみ） | 依存なし | 更新対象なし |
+| ZenzaWatch | `package.json`（devDependencies のみ） | gulp 3.9→5.0.1、webpack 4.27→5.113.0、eslint 4.19→10.15.0、mocha 3.5→12.0.3、jquery 3.3→4.1.0、jsdom 11→31.0.1、`@babel/core` 7.4→8.1.3 | 2018 年世代のスタック。個別更新ではなく全面移行が必要 |
+
+opencode の catalog は TypeScript を `@typescript/typescript6@6.0.2` エイリアスと
+`typescript@7.1.0-beta` に分けており、安定版 7.0.2 をそのまま採用していない。
+意図的な選択かどうかは上流を確認するまで未確認である。
+
 ## R4 での修正
 
 - 子エージェントは `onoderakeita/workflows` の到達性を「未確認」としていたが、
@@ -200,6 +217,8 @@ status: "draft"
 5. gitleaks 系 2 リポを Betterleaks v1.10.1 主軸へ移行するか、例外を文書化する。
 6. dsh-gitbash-win の CI matrix に DSH rc.4 / rc.5 を追加し、互換性を実測してから
    `dshReleases` と peer 範囲を更新する。
+7. fork については先に上流との差分を確認する。OpenCodeRust は renovate 設定が
+   あるため自動更新に委譲し、ZenzaWatch は全面移行が必要なら専任タスクとして分離する。
 
 ## 未確認事項と限界
 
@@ -207,7 +226,9 @@ status: "draft"
 - Node 22 のサポート終了時期、および `@wdio/tauri-service` の WDIO 10 対応版の有無は未確認。
 - `src/` 配下のコードを読んでいないため、宣言バージョンが実際に使う API と整合するかは未検証。
 - 旧名 `onoderakeita` 配下のリポはリネームにより存在しないことを確認済み。
-  ただし fork 4 リポの依存は未調査であり、必要なら別途チェックする。
+- fork 4 リポの依存は調査済みだが、上流リポジトリとの差分は未調査。
+  「最新版へ更新」が上流追従方針と冲突する可能性がある。
+- opencode の TypeScript エイリアス（6.0.2 / 7.1.0-beta）が意図的かどうかは未確認。
 
 ## 出典
 
@@ -218,4 +239,7 @@ status: "draft"
 - [Seduce0068/workflows tags](https://api.github.com/repos/Seduce0068/workflows/git/refs/tags/v1)
 - [旧ユーザー名 onoderakeita（404）](https://api.github.com/users/onoderakeita)
 - [認証ユーザー Seduce0068](https://api.github.com/user)
+- [opencode package.json](https://github.com/Seduce0068/opencode/blob/dev/package.json)
+- [OpenCodeRust Cargo.toml](https://github.com/Seduce0068/OpenCodeRust/blob/master/Cargo.toml)
+- [ZenzaWatch package.json](https://github.com/Seduce0068/ZenzaWatch/blob/playlist-deploy/package.json)
 - [各リポジトリのマニフェストとワークフロー](https://github.com/Seduce0068)

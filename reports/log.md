@@ -2,6 +2,9 @@
 
 ## 2026-11-23
 
+- 23:23 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)
+  を更新。fork 4 リポ（opencode / OpenCodeRust / UserScripts / ZenzaWatch）を
+  対象に追加し、依存最新版との比較結果を記載。対象は 27→31 リポ。
 - 23:07 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   を更新。Q4_K_M 環境をユーザー領域に構築し、起動スクリプトと検証結果を記載。
 - 22:55 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)
