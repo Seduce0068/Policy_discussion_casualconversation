@@ -75,6 +75,25 @@ Hugging Face のモデルカード、Ollama と NVIDIA の公式ドキュメン�
 | `Jackrong DeepSeek-V4-Pro-Qwen3.5-4B` Q4_K_M（llama.cpp） | 全 99 層 GPU, 2.78 GB ファイル | 63.5〜65.5 tok/s | 69〜115 tok/s |
 | `Qwen3.5-4B` を `-ngl 20` に変更 | 20 層 GPU, 3.4 GB 使用 | 9.2〜18.9 tok/s | 38〜39 tok/s |
 
+### unsloth 量子化レベルの比較
+
+同一モデル（Qwen3.5-4B）の unsloth GGUF を 4 種類実測した。
+
+| 量子化 | ファイルサイズ | decode | VRAM 使用 | 工具呼び出し |
+| --- | --- | --- | --- | --- |
+| IQ4_XS | 2.48 GB | 58.6〜61.5 tok/s | 5.17 GB | 正常 |
+| **Q4_K_M** | 2.74 GB | **63.7〜64.9 tok/s** | 5.30 GB | 正常 |
+| UD-Q4_K_XL | 2.91 GB | 58.5〜60.2 tok/s | 5.25 GB | 正常 |
+| Q5_K_M | 3.14 GB | 53.2〜55.1 tok/s | 5.57 GB | 正常 |
+
+**推奨は Q4_K_M**。最速で、VRAM も 6GB に収まる。
+ファイルを小さくしても（IQ4_XS）VRAM はほぼ減らず、速度だけが落ちた。
+計算バッファと KV が VRAM の大半を占めるためである。
+Q5_K_M は品質上是利だが、生成速度が約 17% 低下した。
+Q6_K 以上は Q5_K_M の 5.57 GB を超えるため 6GB では実用的ではない。
+Q5_K_M の JSON スキーマ出力は `max_tokens=1200` で切れたが、
+Q4_K_M も `max_tokens=400` で切れており、思考トークン量に依存する。
+
 llama.cpp の起動条件は `-ngl 99 -c 16384 -ctk q8_0 -ctv q8_0` である。
 バイナリは [llama.cpp b12359 の CUDA 12.8 ビルド](https://github.com/ggml-org/llama.cpp/releases/tag/b12359)
 を一時ディレクトリに配置して使用した。初回プロセスでは PTX JIT により
@@ -342,6 +361,8 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
 
 - BFCL / SWE-bench / TAU2-Bench の独立スコア。モデルカードの自己報告のみで、
   自前のゴールデンセットによる定量評価は未実施。
+- 量子化レベル間の品質差。速度・VRAM・工具呼び出しは実測したが、
+  IQ4_XS / Q4_K_M / Q5_K_M のタスク成功率は比較していない。
 - 日本語長文のコーディング品質。実測は日本語の工具呼び出し・JSON ・
   天気回答に限られる。
 - コミュニティ蒸留版のタスク成功率。実機では工具呼び出し・JSON・
