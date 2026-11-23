@@ -66,6 +66,7 @@ Hugging Face のモデルカード、Ollama と NVIDIA の公式ドキュメン�
 | 7b + FA/q8 KV（別ポート実験） | 22% CPU / 78% GPU, 5.3 GB | 16.8 tok/s | 未計測 |
 | `Qwen3.5-4B-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 2.6 GB ファイル | 63.7〜64.9 tok/s | 82〜121 tok/s |
 | `gemma-4-E2B-it-Q4_K_M`（llama.cpp） | 全 99 層 GPU, 3.1 GB ファイル | 95.8 tok/s | 259〜270 tok/s |
+| `gemma-4-E2B-it-UD-japanese-imatrix` Q4_K_M（llama.cpp） | 全 99 層 GPU, 3.1 GB ファイル | 97.0〜99.6 tok/s | 264〜277 tok/s |
 | `Qwen3.5-4B` を `-ngl 20` に変更 | 20 層 GPU, 3.4 GB 使用 | 9.2〜18.9 tok/s | 38〜39 tok/s |
 
 llama.cpp の起動条件は `-ngl 99 -c 16384 -ctk q8_0 -ctv q8_0` である。
