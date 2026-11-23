@@ -172,9 +172,9 @@ DSA モデルを `--n-cpu-moe 35` で CPU に逃がし、32GB VRAM + 96GB DDR4 �
 
 ## エージェント目的の品質比較
 
-llama.cpp の OpenAI 互換 API を使い、両モデルに同一のタスクを投げた。
+llama.cpp の OpenAI 互換 API を使い、4 モデルに同一のタスクを投げた。
 工具呼び出し、JSON スキーマ準拠、tool response 後の最終回答のすべてで
-両モデルとも正常に動作した。生成速度と VRAM では Gemma 4 E2B が有利だが、
+4 モデルとも正常に動作した。生成速度では Jackrong 2B が最も速く、
 ベンチマークとコンテキスト長では Qwen3.5-4B が有利である。
 
 | 指標 | Qwen3.5-4B | Gemma 4 E2B | Jackrong 2B Claude 蒸留 | Jackrong DeepSeek-V4-Pro 4B |
