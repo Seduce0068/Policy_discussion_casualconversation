@@ -40,18 +40,18 @@ AgentRouter は UA を見てクライアントを制限している。`curl` 既
 ## クォータと残高
 
 アカウント残高と API キー（トークン）の额度は別管理である。調査時、残高には
-余裕があったが、トークン側の `hard_limit_usd` が `1` に設定されていた。
+余裕があったが、トークン側の `hard_limit_usd` が低い初期上限に設定されていた。
 
 ```text
-hard_limit_usd: 1
-total_usage:    97.9144   (New API の単位はセント)
+hard_limit_usd: <initial-limit>
+total_usage:    <observed-usage>   (New API の単位はセント)
 ```
 
-1 リクエストあたり約 $0.065 を要求し、残量不足で
+1 リクエストあたり約 `<per-request-cost>` を要求し、残量不足で
 `token quota is not enough` が返る状態だった。OpenCode のシステムプロンプトと
-ツール定義が毎回乗るため、$1 では 15 回程度で上限に達する。
+ツール定義が毎回乗るため、初期上限では 10 数回程度で上限に達する。
 
-キー設定で上限を変更した後は `hard_limit_usd: 100000000` となり、実質無制限に
+キー設定で上限を変更した後は `hard_limit_usd: <raised-limit>` となり、実質無制限に
 なった。`total_usage` は累積値であり、残量ではない。変更後もモデルの応答を
 確認済み。
 
@@ -100,7 +100,7 @@ total_usage:    97.9144   (New API の単位はセント)
 
 ## 実装した回避策
 
-グローバルプラグイン `~/.config/opencode/plugins/agentrouter-escape/index.ts` を
+グローバルプラグイン `<config-dir>/plugins/agentrouter-escape/index.ts` を
 追加した。`http.request` フックを `providerID: "agentrouter"` に限定し、
 `role: "user"` の非 ASCII 文字列を 10 進コードポイント列へ変換する。
 
@@ -131,7 +131,7 @@ TUI から日本語をそのまま入力できる。プラグインは共有サ�
 
 ## 設定変更
 
-`~/.config/opencode/opencode.jsonc` の `providers.agentrouter.models` に
+`<config-dir>/opencode.jsonc` の `providers.agentrouter.models` に
 `gpt-6.1-sol` を追加した。既存 2 モデルと同じ Responses API パッケージと
 上限値（context 1,050,000 / output 16,384）を指定している。
 
@@ -142,7 +142,7 @@ b7d623e feat: add AgentRouter gpt-6.1-sol model
 00ea969 feat: encode AgentRouter user messages as code points
 ```
 
-いずれも `OLD_ACCOUNT/grobalOpencodeSettings` の `master` に push 済み。
+いずれも `<old-account>/grobalOpencodeSettings` の `master` に push 済み。
 
 ## 運用手順
 

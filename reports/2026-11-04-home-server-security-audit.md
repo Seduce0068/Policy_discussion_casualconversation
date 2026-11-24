@@ -1,7 +1,7 @@
 ---
 type: Report
-title: "自宅 Kubuntu サーバのセキュリティ監査（2026-11-04）"
-description: "Ubuntu 26.04.1 LTS の常駐サーバ化に伴う外部公開ポート・SSH・権限・更新状況を実測し、優先度付きの対策を整理した監査報告"
+title: "自宅常駐サーバのセキュリティ監査（2026-11-04）"
+description: "Linux 常駐サーバの外部公開ポート・認証・権限・更新状況を実測し、優先度付きの対策を整理した監査報告"
 tags:
   - security
   - homelab
@@ -15,8 +15,9 @@ status: draft
 
 ## 概要
 
-自宅 Kubuntu PC を常駐サーバとして運用する前提で、外部公開ポート、認証、権限、更新、監視の状態を
-SSH 経由の読み取り調査で確認した。対象は Ubuntu 26.04.1 LTS（kernel 7.0.0-42-generic）。
+自宅 PC を常駐サーバとして運用する前提で、外部公開ポート、認証、権限、更新、監視の状態を
+SSH 経由の読み取り調査で確認した。対象は Linux ディストリビューションの常駐構成で、
+OS 版・カーネル版は `<os-version>` / `<kernel-version>` として汎化している。
 
 ## 総合評価
 
@@ -24,60 +25,59 @@ SSH 経由の読み取り調査で確認した。対象は Ubuntu 26.04.1 LTS（
 
 | 区分 | 件数 | 代表例 |
 | --- | --- | --- |
-| High | 3 | SSH パスワード認証、xrdp 全公開、Home Assistant |
-| Medium | 5 | VS Code ポート、正体不明ポート、docker グループ、ufw 未確認 |
+| High | 3 | SSH パスワード認証、RDP 全公開、ホームオートメーション公開 |
+| Medium | 5 | エディタポート、正体不明ポート、コンテナ特権グループ、ufw 未確認 |
 | Low | 3 | X11Forwarding、設定ファイル権限、LUKS なし |
 | 良好 | 7 | AppArmor、自動更新、カーネルハードニング、鍵権限 |
 
 ## High
 
-### H1: SSH のパスワード認証が有効
+### H1: SSH でパスワード認証が残っている
 
-`/etc/ssh/sshd_config` に `PasswordAuthentication` の記述がなく、`/etc/ssh/sshd_config.d/` も空である。
-OpenSSH のデフォルトは `yes` のため、パスワード認証が有効と判断できる。
+SSH サーバ設定に `PasswordAuthentication` の明示的な無効化がなく、
+Drop-in 設定も空だった。OpenSSH の既定に従いパスワード認証が有効と判断できる。
 
-- 影響: LAN 内の任意の端末からパスワードブルートフォースが可能。
+- 影響: 同一ネットワーク内の端末からパスワードブルートフォースが可能。
 - 対策: 鍵認証のみに限定する。
 
-### H2: xrdp が全インターフェースに公開
+### H2: リモートデスクトップサービスが全インターフェースに公開
 
-`xrdp.service` が enabled かつ active で、`*:3389` を LISTEN している。
-`/etc/xrdp/xrdp.ini` の `port=3389` は全インターフェースを意味する。
+RDP サービスが enabled かつ active で、全アドレス（`<rdp-port>`）を LISTEN している。
+設定の `port=` にアドレス指定がなく、全インターフェースを意味する。
 
 - 影響: RDP のブルートフォース、CredSSP 系脆弱性の標的になる。
-- 対策: 不要なら停止する。必要なら ufw で LAN と Tailscale だけに許可する。
+- 対策: 不要なら停止する。必要ならファイアウォールで LAN と VPN だけに許可する。
 
-### H3: Home Assistant が 0.0.0.0:8123
+### H3: ホームオートメーションサービスが全アドレスで待ち受け
 
-`0.0.0.0:8123` と `[::]:8123` で LISTEN している。
-プロセスは `python3 -P -m homeassistant --config /config` で、root で稼働している。
-LAN 内の任意の端末から到達できる。
+スマートホーム系サービスが全 IPv4/IPv6 アドレス（`<service-port>`）で LISTEN し、
+特権ユーザーで稼働している。LAN 内の任意の端末から到達できる。
 
 - 影響: 認証情報のブルートフォース、設定改ざんのリスク。
-- 対策: ufw で LAN と Tailscale だけに許可し、外部公開しない。
+- 対策: ファイアウォールで LAN と VPN だけに許可し、外部公開しない。
 
 ## Medium
 
-### M1: VS Code が *:5746 を外部公開
+### M1: エディタが予備ポートを外部公開
 
-`code` プロセスが `*:5746` を LISTEN している。
+エディタプロセスが `<editor-port>` を LISTEN している。
 ポートフォワードまたは拡張機能の待受と推測される。
 
-- 対策: `ss -tulnp` で用途を確認し、不要なら VS Code のポートフォワードを停止する。
+- 対策: `ss -tulnp` で用途を確認し、不要ならポートフォワードを停止する。
 
-### M2: go2rtc が *:18555 を外部公開
+### M2: カメラストリーミングサービスが外部公開
 
-`*:18555` は `go2rtc` が LISTEN している。
-Home Assistant のカメラストリーミング用サービスで、root で稼働している。
+`<camera-port>` はカメラストリーミングサービスが LISTEN している。
+ホームオートメーションのカメラ用で、特権ユーザーで稼働している。
 
-- 対策: ufw で遮断したままにし、Home Assistant の 8123 経由で利用する。
+- 対策: ファイアウォールで遮断したままにし、ホームオートメーションサービス経由で利用する。
 
-### M3: docker グループ所属は root 相当
+### M3: コンテナ用特権グループ所属は root 相当
 
-`USER` は `docker` グループに所属している。
-docker ソケットへの書き込みはホストの root 権限に相当する。
+運用ユーザー（`<user>`）はコンテナ用特権グループに所属している。
+ソケットへの書き込みはホストの root 権限に相当する。
 
-- 対策: 常時所属を見直し、必要時だけ `sudo docker` を使う。または rootless Docker へ移行する。
+- 対策: 常時所属を見直し、必要時だけ `sudo` 経由で使う。または rootless 構成へ移行する。
 
 ### M4: ufw のルールが未確認
 
@@ -88,9 +88,9 @@ ufw は enabled かつ active だが、許可ルールを一般ユーザーで�
 ### M5: fail2ban 未導入
 
 `fail2ban` は導入されていない。
-SSH を鍵認証のみにすれば優先度は下がるが、xrdp を残すなら必要。
+SSH を鍵認証のみにすれば優先度は下がるが、RDP サービスを残すなら必要。
 
-- 対策: xrdp を残す場合のみ導入する。
+- 対策: RDP サービスを残す場合のみ導入する。
 
 ## Low
 
@@ -98,16 +98,16 @@ SSH を鍵認証のみにすれば優先度は下がるが、xrdp を残すな�
 
 `X11Forwarding yes` が明示されている。使わないなら無効化する。
 
-### L2: opencode 設定ファイルが 664
+### L2: エージェント設定ファイルが他ユーザーから読める状態
 
-`~/.config/opencode/opencode.jsonc` と `.bak` が 664 で、他ユーザーから読める。
-秘密情報は `.env` と `service.json` に分離されており、それらは 600 で適切。
+ユーザー設定ディレクトリ内のエージェント設定ファイルとバックアップが 664 で、
+他ユーザーから読める。秘密情報は個別ファイルへ分離され、そちらは 600 で適切。
 
 - 対策: `chmod 600` に統一する。
 
 ### L3: ディスク暗号化なし
 
-LUKS は使われておらず、`/dev/nvme0n1p7` を直接マウントしている。
+ディスク暗号化（LUKS）は使われておらず、`<disk-device>` を直接マウントしている。
 物理アクセス時にディスク全体を読める。
 
 - 対策: 設置場所の物理管理を徹底する。必要なら LUKS + dropbear-initramfs を検討する。
@@ -157,30 +157,30 @@ sudo systemctl reload ssh
 
 設定を戻す場合は `10-hardening.conf` を削除し、`sshd -t` の後に reload する。
 
-### 2. xrdp の停止または制限
+### 2. RDP サービスの停止または制限
 
 不要な場合:
 
 ```bash
-sudo systemctl disable --now xrdp xrdp-sesman
+sudo systemctl disable --now <rdp-service>
 ```
 
 必要な場合:
 
 ```bash
-sudo ufw allow from <private-ip>/24 to any port 3389 proto tcp
-sudo ufw allow in on tailscale0 to any port 3389 proto tcp
-sudo ufw deny 3389/tcp
+sudo ufw allow from <private-ip>/24 to any port <rdp-port> proto tcp
+sudo ufw allow in on <vpn-iface> to any port <rdp-port> proto tcp
+sudo ufw deny <rdp-port>/tcp
 ```
 
-### 3. Home Assistant の公開範囲
+### 3. ホームオートメーションサービスの公開範囲
 
-Home Assistant は `8123/tcp` で待ち受ける。ufw で LAN と Tailscale だけに許可し、
+ホームオートメーションサービスは `<service-port>/tcp` で待ち受ける。ufw で LAN と VPN だけに許可し、
 ルーターのポート開放は行わない。
 
 ```bash
-sudo ufw allow from <private-ip>/24 to any port 8123 proto tcp
-sudo ufw allow in on tailscale0 to any port 8123 proto tcp
+sudo ufw allow from <private-ip>/24 to any port <service-port> proto tcp
+sudo ufw allow in on <vpn-iface> to any port <service-port> proto tcp
 ```
 
 ### 4. ufw の整理
@@ -190,10 +190,10 @@ sudo ufw status numbered
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow from <private-ip>/24 to any port 22 proto tcp
-sudo ufw allow in on tailscale0 to any port 22 proto tcp
+sudo ufw allow in on <vpn-iface> to any port 22 proto tcp
 ```
 
-### 5. fail2ban（xrdp を残す場合）
+### 5. fail2ban（RDP サービスを残す場合）
 
 ```bash
 sudo apt install fail2ban
@@ -210,15 +210,15 @@ maxretry = 5
 [sshd]
 enabled = true
 
-[xrdp]
+[rdp]
 enabled = true
-port = 3389
+port = <rdp-port>
 ```
 
 ### 6. 設定ファイルの権限
 
 ```bash
-chmod 600 "$HOME/.config/opencode/opencode.jsonc" "$HOME/.config/opencode/opencode.jsonc.bak"
+chmod 600 "$HOME/.config/<agent>/config.jsonc" "$HOME/.config/<agent>/config.jsonc.bak"
 ```
 
 ### 7. 検証
@@ -235,15 +235,15 @@ sudo ss -tulnp | grep LISTEN
 
 - `sudo sshd -T`
 - `sudo ufw status numbered`
-- `sudo ss -tulnp | grep -E "18555|5746|8123|3389"`
+- `sudo ss -tulnp | grep LISTEN`（待受ポートの洗い出し）
 - `sudo journalctl -u ollama -n 50`
 
 ## 訂正
 
 2026-11-05 の実行確認で、初版の記述に次の誤りが見つかったため訂正した。
 
-- H3 の 8123 は AdGuard Home ではなく Home Assistant だった。
-- M2 の 18555 は正体不明ではなく go2rtc だった。
+- H3 の待受ポートのサービスは、当初想定していたものではなくホームオートメーションサービスだった。
+- M2 の待受ポートのサービスは、正体不明ではなくカメラストリーミングサービスだった。
 - Ollama の再起動ループはポート競合ではなく、`/usr/share/ollama` の権限不足だった。
 - 対策手順のコード例を Nushell から Bash に統一した。
 
