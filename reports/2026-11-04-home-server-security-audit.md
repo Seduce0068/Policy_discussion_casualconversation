@@ -168,7 +168,7 @@ sudo systemctl disable --now xrdp xrdp-sesman
 必要な場合:
 
 ```bash
-sudo ufw allow from 192.168.128.0/24 to any port 3389 proto tcp
+sudo ufw allow from <private-ip>/24 to any port 3389 proto tcp
 sudo ufw allow in on tailscale0 to any port 3389 proto tcp
 sudo ufw deny 3389/tcp
 ```
@@ -179,7 +179,7 @@ Home Assistant は `8123/tcp` で待ち受ける。ufw で LAN と Tailscale だ
 ルーターのポート開放は行わない。
 
 ```bash
-sudo ufw allow from 192.168.128.0/24 to any port 8123 proto tcp
+sudo ufw allow from <private-ip>/24 to any port 8123 proto tcp
 sudo ufw allow in on tailscale0 to any port 8123 proto tcp
 ```
 
@@ -189,7 +189,7 @@ sudo ufw allow in on tailscale0 to any port 8123 proto tcp
 sudo ufw status numbered
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-sudo ufw allow from 192.168.128.0/24 to any port 22 proto tcp
+sudo ufw allow from <private-ip>/24 to any port 22 proto tcp
 sudo ufw allow in on tailscale0 to any port 22 proto tcp
 ```
 

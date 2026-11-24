@@ -105,8 +105,8 @@ HR02 の「IPアドレスフィルタリング」はフィルターモードが�
 
 | 場所 | 経路 |
 | --- | --- |
-| 自宅 LAN | `ssh koppe@192.168.128.111` |
-| 外出先 | Android 版 Tailscale + `ssh koppe@100.117.19.54` |
+| 自宅 LAN | `ssh koppe@<private-ip>` |
+| 外出先 | Android 版 Tailscale + `ssh koppe@<tailnet-ip>` |
 | IPv6 | LAN 内の通信に限定 |
 
 ## 参照
