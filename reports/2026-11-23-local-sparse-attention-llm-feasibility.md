@@ -323,6 +323,95 @@ stock llama.cpp は indexer テンソルを読み込めない。
 破壊操作には Human-in-the-loop を必須とすることである
 （[OWASP LLM06](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/main/2_0_vulns/LLM06_ExcessiveAgency.md)）。
 
+## スマホ（Galaxy S26 Ultra）への展開
+
+PC 版 Q4_K_M をスマホでも動かす場合の調査と実機確認結果をまとめる。
+
+### 実機の確認済み事実
+
+ワイヤレス ADB で接続した実機の Runtime Proof:
+
+| 項目 | 値 |
+| --- | --- |
+| 型番 | SM-S948Q（`m3q` / `m3qjpnw`、日本向け SIM フリー） |
+| OS | Android 17（ユーザー訂正。出荷時は Android 16 で、2026-09 に 17 へ更新） |
+| ABI | arm64-v8a |
+| CPU | ARMv9-A（SME2 / SVE2 / BF16 / i8mm 対応） |
+| GPU | Adreno（`/dev/kgsl-3d0`、`ro.hardware.egl=adreno`） |
+| RAM | MemTotal 14.7 GiB / **MemAvailable 2.42 GiB**（確認時点） |
+| zRAM | SwapTotal 20 GiB |
+| ストレージ | /data 空き 304 GB |
+| 既存アプリ | Termux 0.118.3、Shizuku、Tasker / AutoInput |
+| ビルド | S948QOPU1BZJC |
+
+Samsung 公式 JP 仕様ページのプロセッサ欄はクロック（4.74 GHz / 3.6 GHz）と
+オクタコアのみを記載し、SoC 名は記載しない。Snapdragon 8 Elite Gen 5 for Galaxy
+（SM8850）/ Adreno 840 はコミュニティ情報であり、SM-S948Q での同一性は推定である。
+
+Qwen3.5-4B Q4_K_M（2,740,937,888 バイト）を
+`/sdcard/Download/qwen35-4b-Q4_K_M.gguf` へ adb push 済み（17.1 MB/s、約 2 分 33 秒）。
+実機の `/data/data/com.termux` は adb から Permission denied で、
+Termux 内部の確認・操作は別途ユーザーの画面操作が必要である。
+
+### 推奨構成
+
+エージェント用途（工具呼び出し・OpenAI 互換 API）では **Termux + llama-server** が
+事実上の選択肢である。PocketPal AI は GGUF をオフライン実行でき、
+Galaxy S26 Ultra でのベンチ提出もあるが、工具呼び出しと OpenAI 互換
+エンドポイントは feature request 段階で、エージェント用途には向かない。
+LM Studio は Android 版を提供していない。Ollama も公式 Android アプリはない。
+
+| 用途 | 選択肢 |
+| --- | --- |
+| チャット・簡易推論 | PocketPal AI（[GitHub](https://github.com/a-ghorbani/pocketpal-ai)、MIT、GGUF 直接読込可） |
+| エージェント・API | Termux + llama-server（`--jinja`、`/v1/chat/completions`） |
+
+Termux では公式手順で llama.cpp をビルドできる
+（[android.md](https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md)）。
+
+```bash
+apt update && apt upgrade -y
+apt install git cmake libandroid-spawn
+git clone https://github.com/ggml-org/llama.cpp
+cmake -B build -DGGML_VULKAN=ON -DGGML_CPU_KLEIDIAI=ON
+cmake --build build --config Release -j$(nproc)
+cp /sdcard/Download/qwen35-4b-Q4_K_M.gguf ~/
+./build/bin/llama-server -m ~/qwen35-4b-Q4_K_M.gguf \
+  -ngl 0 -c 8192 -ctk q8_0 -ctv q8_0 \
+  --host 127.0.0.1 --port 18080
+```
+
+起動前に `MemAvailable` が 2.42 GiB しかないため、他アプリを停止して
+空きを 4 GB 以上確保する必要がある。初回は `-c 4096〜8192` から始める。
+公式モデルカードは 128K 維持を推奨するが、スマホでは非現実的である。
+
+### バックエンドの注意
+
+8 Elite Gen 5 / Adreno 840 では backend ごとに問題が報告されている。
+
+- Vulkan は量子化 MUL_MAT の誤計算と全層オフロード時の SIGSEGV 例がある。
+  `-ngl 63` のように 1 層だけ CPU に残すと動く例もある。
+- CPU は Qwen3.5 の Gated DeltaNet ハイブリッドで garbage output の報告がある
+  一方、Vulkan では同一モデルが正常だった例もあり、常に正しいとは限らない。
+- Hexagon NPU は公称 45 TOPS に対し llama.cpp の実測が約 0.5 TOPS の報告や、
+  garbled output の報告がある。エージェント用途では NPU を既定にしない。
+- OpenCL は CPU より速く正常な例（24 t/s vs 4.4 t/s）があるがドライバ依存である。
+
+したがって **`-ngl 0`（CPU）と `-dev GPUOpenCL` の両方で固定プロンプトの
+出力正しさを確認してから、速度の速い方を採用する** のが安全である。
+
+### 期待速度
+
+| 出典 | 条件 | 速度 |
+| --- | --- | --- |
+| [PocketPal Leaderboard](https://pocketpal.dev/leaderboard/device/Galaxy%20S26%20Ultra) | S26 Ultra / 4B IQ4_NL | tg 13.19 tok/s、pp 271 tok/s |
+| 同 | S26 Ultra / 4B UD-Q4_K_XL | tg 7.10 tok/s |
+| [LiteRT-LM モデルカード](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm) | S26 Ultra / Gemma 4 E2B GPU | tg 52.1 tok/s（投機的デコーディング時 91.7） |
+| [llama.cpp issue](https://github.com/ggml-org/llama.cpp/issues/26957) | S23 Ultra / 2B Q4_K_M CPU | tg 15.48 tok/s |
+
+PC の 64 tok/s に対し、スマホの 4B Q4 は **7〜13 tok/s 程度** と見積もられる。
+同一条件の実機ベンチは未実施で、発熱・クロックスロットルで大きく変動する。
+
 ## 推奨構成
 
 ### 段階 1：既存資産で即座に使う
@@ -381,6 +470,11 @@ MoE CPU オフロードは 17〜20 tok/s の報告があり、実用性は段階
   定量比較は未実施。Jackrong 4B は JSON の内容に不自然な項目が見られた。
 - 32K / 128K コンテキストでの安定性と VRAM 消費。
 - Ollama を最新版へ更新した場合の `qwen3.5:4b` / `gemma4:e2b` pull 可否。
+- スマホ実機での llama-server 起動・速度・工具呼び出しの実測。
+  モデル転送と端末情報の確認のみ実施し、Termux 内部は adb から
+  Permission denied のため未検証。
+- スマホのバックエンド別（CPU / OpenCL / Vulkan / Hexagon）速度と
+  出力正しさの実機比較。
 - 2B QSA 実験モデルの sm_75 動作と実用速度。
 - 長時間稼働時の発熱・消費電力と、JIT キャッシュの永続性。
 

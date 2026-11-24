@@ -2,6 +2,10 @@
 
 ## 2026-11-24
 
+- 20:00 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
+  にスマホ（Galaxy S26 Ultra / Android 17）への展開手順と実機確認結果を追記。
+  Termux + llama-server を推奨。Q4_K_M の転送完了を記録。
+
 - 01:20 - シークレットスキャンを `Seduce0068/workflows` の
   `secret-gates.yml` へ集約し、当リポジトリは `uses:` で参照する形に変更。
 - 00:26 - [AIエージェント時代の秘密・機微情報管理のベストプラクティス調査](2026-11-24-ai-agent-secrets-management-best-practices.md)
