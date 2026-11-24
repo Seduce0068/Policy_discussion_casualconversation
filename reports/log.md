@@ -6,7 +6,7 @@
   にスマホ（Galaxy S26 Ultra / Android 17）への展開手順と実機確認結果を追記。
   Termux + llama-server を推奨。Q4_K_M の転送完了を記録。
 
-- 01:20 - シークレットスキャンを `Seduce0068/workflows` の
+- 01:20 - シークレットスキャンを `ACCOUNT/workflows` の
   `secret-gates.yml` へ集約し、当リポジトリは `uses:` で参照する形に変更。
 - 00:26 - [AIエージェント時代の秘密・機微情報管理のベストプラクティス調査](2026-11-24-ai-agent-secrets-management-best-practices.md)
   を追加。16体のサブエージェントで一次調査・敵対検証を行い、出典付きで整理。
@@ -20,12 +20,12 @@
 - 23:07 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   を更新。Q4_K_M 環境をユーザー領域に構築し、起動スクリプトと検証結果を記載。
 - 22:55 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)
-  を更新。旧ユーザー名 onoderakeita が 404 で新名へリネーム済みであることを確定し、
+  を更新。旧ユーザー名 OLD_ACCOUNT が 404 で新名へリネーム済みであることを確定し、
   未確認事項を修正。漏れていた 4 リポはすべて fork のため対象外と明記。
 - 22:28 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   に unsloth 量子化 4 種の実測を追記。Q4_K_M が最速で推奨と判定。
 - 21:38 - [個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック](2026-11-23-personal-repos-dependency-freshness.md)
-  を追加。Seduce0068 配下 27 リポのマニフェストを一次レジストリと照合し、
+  を追加。ACCOUNT 配下 27 リポのマニフェストを一次レジストリと照合し、
   更新候補を優先度別に整理。R4 で 2 件の誤りを修正。
 - 21:24 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
   に Jackrong 蒸留 2 モデルの実機検証結果を追記。2B は 125 tok/s、

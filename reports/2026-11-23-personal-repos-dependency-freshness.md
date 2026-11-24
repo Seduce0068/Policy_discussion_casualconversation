@@ -1,7 +1,7 @@
 ---
 type: Report
 title: "個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック"
-description: "Seduce0068 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
+description: "ACCOUNT 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
 tags:
   - dependency
   - audit
@@ -16,7 +16,7 @@ status: "draft"
 
 ## 概要
 
-`github.com/Seduce0068/*` の 31 リポジトリ（オリジナル 27 + fork 4）を対象に、
+`github.com/ACCOUNT/*` の 31 リポジトリ（オリジナル 27 + fork 4）を対象に、
 依存ライブラリ・言語/ツールチェーン・CI アクションのピン留めが最新かを静的調査した。
 初回確認は `2026-11-23T21:24:13+09:00` 以降、fork の追加調査は
 `2026-11-23T23:18:47+09:00` 時点である。
@@ -48,7 +48,7 @@ status: "draft"
 
 ### 除外・未確認
 
-- 旧ユーザー名 `onoderakeita` は 2026-11-22 に `Seduce0068` へリネーム済みで、
+- 旧ユーザー名 `OLD_ACCOUNT` は 2026-11-22 に `ACCOUNT` へリネーム済みで、
   GitHub API 上は 404（ユーザー自体が存在しない）。旧名配下に独立したリポは存在しない。
 - 認証ユーザー視点で見つかった `opencode` / `OpenCodeRust` / `UserScripts` / `ZenzaWatch` の
   4 リポは fork だが、ユーザー指示により個人リポとして追加調査した（後述）。
@@ -124,7 +124,7 @@ status: "draft"
   gpui-file-explorer 1.92、cordis-rs 1.85、dsh-gpui-client-poc 1.88、
   openrustbooks CI 1.95.0、bitwarden-gpui-poc CI 1.95 と古い。
   jarvis の `rust-version = "1.100"` は最新と一致している。
-- **共通ゲート**: `Seduce0068/workflows` の `rust-gates.yml` は `rust_toolchain` 既定が可変の `stable` で、
+- **共通ゲート**: `ACCOUNT/workflows` の `rust-gates.yml` は `rust_toolchain` 既定が可変の `stable` で、
   各リポの MSRV を固定検証していない。
 - **Node**: userscript CI は 22、dsh-gitbash-win CI は 24、openIllustration は `engines.node >=22`。
   最新安定版は 26.13.1（LTS Lithium）。22 のサポート終了時期は今回未確認。
@@ -135,9 +135,9 @@ status: "draft"
   jarvis などは `@v1` 参照。タグ付け替え時に全呼び出し側が同時に変わる。
 - **ピン不整合**: `taiki-e/install-action` は v2.90.3 / v2.90.6 に分かれ、最新は v2.90.8。
   `cargo-deny` は 0.20.2 / 0.21.0 に分かれ、最新は 0.22.0。
-- **参照先アカウント**: system-diagnostics は `onoderakeita/workflows@...v1` を参照。
+- **参照先アカウント**: system-diagnostics は `OLD_ACCOUNT/workflows@...v1` を参照。
   旧アカウントは到達可能で v1 の SHA も同一だが、共通指示に従い
-  `Seduce0068/workflows` 参照へ統一するのが安全。
+  `ACCOUNT/workflows` 参照へ統一するのが安全。
 - **シークレットスキャン**: cordis-rs と dsh-gitbash-win は gitleaks、
   他は Betterleaks。共通指示は Betterleaks 主軸のため、方針適用か例外文書化が必要。
 - **npm**: 4 リポ（`userscript`、`dsh-gitbash-win`、`openrustbooks`、`openIllustration`）に
@@ -196,13 +196,13 @@ opencode の catalog は TypeScript を `@typescript/typescript6@6.0.2` エイ�
 
 ## R4 での修正
 
-- 子エージェントは `onoderakeita/workflows` の到達性を「未確認」としていたが、
+- 子エージェントは `OLD_ACCOUNT/workflows` の到達性を「未確認」としていたが、
   親が GitHub MCP で確認したところリポは実在し、v1 の SHA は
-  `b7675efd8a9a84ebc5b560da628d1a82f3fbf98f` で `Seduce0068/workflows` と同一だった。
-  フォローアップで `GET /users/onoderakeita` と `GET /users/onoderakeita/repos` が
-  いずれも 404 であること、`GET /repos/onoderakeita/workflows` が
-  `Seduce0068/workflows` へリダイレクトされることを確認し、リネームが確定した。
-  `gh auth status` の表示は旧名のままだが、`gh api user` の `login` は `Seduce0068` である。
+  `b7675efd8a9a84ebc5b560da628d1a82f3fbf98f` で `ACCOUNT/workflows` と同一だった。
+  フォローアップで `GET /users/OLD_ACCOUNT` と `GET /users/OLD_ACCOUNT/repos` が
+  いずれも 404 であること、`GET /repos/OLD_ACCOUNT/workflows` が
+  `ACCOUNT/workflows` へリダイレクトされることを確認し、リネームが確定した。
+  `gh auth status` の表示は旧名のままだが、`gh api user` の `login` は `ACCOUNT` である。
 - 子エージェントは cargo-deny の統一先を 0.21.0 としていたが、
   最新リリースは 2026-11-19 公開の 0.22.0 だった。本レポートでは 0.22.0 を採用した。
 
@@ -211,7 +211,7 @@ opencode の catalog は TypeScript を `@typescript/typescript6@6.0.2` エイ�
 1. P2 の低リスク更新をリポごとに実施し、各リポの標準検証ループ
    （fmt → check/clippy → test）を通す。
 2. P1 は移行ブランチを切り、破壊的変更の差分レビューとテストを先に用意する。
-3. `Seduce0068/workflows` 側で install-action を v2.90.8 の SHA へ、
+3. `ACCOUNT/workflows` 側で install-action を v2.90.8 の SHA へ、
    cargo-deny を 0.22.0 へ統一し、self-test 後に v1 タグを更新する。
 4. 可変タグ参照を SHA 固定へ寄せ、共通ワークフロー呼び出し側の書式を統一する。
 5. gitleaks 系 2 リポを Betterleaks v1.10.1 主軸へ移行するか、例外を文書化する。
@@ -225,7 +225,7 @@ opencode の catalog は TypeScript を `@typescript/typescript6@6.0.2` エイ�
 - 更新後のビルド・テストは未実施。互換性は推奨事項であって確認済みではない。
 - Node 22 のサポート終了時期、および `@wdio/tauri-service` の WDIO 10 対応版の有無は未確認。
 - `src/` 配下のコードを読んでいないため、宣言バージョンが実際に使う API と整合するかは未検証。
-- 旧名 `onoderakeita` 配下のリポはリネームにより存在しないことを確認済み。
+- 旧名 `OLD_ACCOUNT` 配下のリポはリネームにより存在しないことを確認済み。
 - fork 4 リポの依存は調査済みだが、上流リポジトリとの差分は未調査。
   「最新版へ更新」が上流追従方針と冲突する可能性がある。
 - opencode の TypeScript エイリアス（6.0.2 / 7.1.0-beta）が意図的かどうかは未確認。
@@ -236,10 +236,10 @@ opencode の catalog は TypeScript を `@typescript/typescript6@6.0.2` エイ�
 - [crates.io API](https://crates.io/api/v1/crates/notify)
 - [npm registry](https://registry.npmjs.org/typescript/latest)
 - [Node.js dist index](https://nodejs.org/dist/index.json)
-- [Seduce0068/workflows tags](https://api.github.com/repos/Seduce0068/workflows/git/refs/tags/v1)
-- [旧ユーザー名 onoderakeita（404）](https://api.github.com/users/onoderakeita)
-- [認証ユーザー Seduce0068](https://api.github.com/user)
-- [opencode package.json](https://github.com/Seduce0068/opencode/blob/dev/package.json)
-- [OpenCodeRust Cargo.toml](https://github.com/Seduce0068/OpenCodeRust/blob/master/Cargo.toml)
-- [ZenzaWatch package.json](https://github.com/Seduce0068/ZenzaWatch/blob/playlist-deploy/package.json)
-- [各リポジトリのマニフェストとワークフロー](https://github.com/Seduce0068)
+- [ACCOUNT/workflows tags](https://api.github.com/repos/ACCOUNT/workflows/git/refs/tags/v1)
+- [旧ユーザー名 OLD_ACCOUNT（404）](https://api.github.com/users/OLD_ACCOUNT)
+- [認証ユーザー ACCOUNT](https://api.github.com/user)
+- [opencode package.json](https://github.com/ACCOUNT/opencode/blob/dev/package.json)
+- [OpenCodeRust Cargo.toml](https://github.com/ACCOUNT/OpenCodeRust/blob/master/Cargo.toml)
+- [ZenzaWatch package.json](https://github.com/ACCOUNT/ZenzaWatch/blob/playlist-deploy/package.json)
+- [各リポジトリのマニフェストとワークフロー](https://github.com/ACCOUNT)

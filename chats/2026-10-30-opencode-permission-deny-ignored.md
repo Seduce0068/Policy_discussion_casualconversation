@@ -84,7 +84,7 @@ status: "draft"
   可能性があるという指摘もあった。
 - 絶対パス系は [anomalyco/opencode#50241](https://github.com/anomalyco/opencode/issues/50241)
   （closed）で実証済みの構造である。Plan agent の allow ルールは
-  絶対パス（`/home/qasha/.opencode/plan/*`）に解決されているのに、
+  絶対パス（`/home/USER/.opencode/plan/*`）に解決されているのに、
   実際の検査ではプロジェクト内パスが Location 相対形式
   （`.opencode/plan/...`）で渡るため、絶対パスのルールはマッチせず
   先頭の deny が勝つ。 deny/allow が絶対パスで機能しないのは

@@ -142,7 +142,7 @@ b7d623e feat: add AgentRouter gpt-6.1-sol model
 00ea969 feat: encode AgentRouter user messages as code points
 ```
 
-いずれも `onoderakeita/grobalOpencodeSettings` の `master` に push 済み。
+いずれも `OLD_ACCOUNT/grobalOpencodeSettings` の `master` に push 済み。
 
 ## 運用手順
 

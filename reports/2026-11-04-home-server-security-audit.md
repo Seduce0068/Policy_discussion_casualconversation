@@ -74,7 +74,7 @@ Home Assistant のカメラストリーミング用サービスで、root で稼
 
 ### M3: docker グループ所属は root 相当
 
-`koppe` は `docker` グループに所属している。
+`USER` は `docker` グループに所属している。
 docker ソケットへの書き込みはホストの root 権限に相当する。
 
 - 対策: 常時所属を見直し、必要時だけ `sudo docker` を使う。または rootless Docker へ移行する。
