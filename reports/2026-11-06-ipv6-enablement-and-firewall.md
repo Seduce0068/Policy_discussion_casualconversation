@@ -16,7 +16,7 @@ status: review
 ## 概要
 
 自宅 Linux PC で IPv6 を有効化し、グローバルアドレスの取得、ufw の IPv6 ルール整備、
-外部からの到達性を評価した。`<router>` は RA で `240a:61:1221:b391::/64` を配布しており、
+外部からの到達性を評価した。`<router>` は RA で `2001:db8:1::/64` を配布しており、
 PC は SLAAC でグローバル IPv6 を取得できた。
 
 一方、スマホのモバイル回線は IPv6 非対応で、外部到達性の実地テストができなかった。
@@ -41,20 +41,20 @@ sudo nmcli connection up <lan-iface>
 `rdisc6` で `<router>` の RA を確認した。
 
 ```text
-Prefix                   : 240a:61:1221:b391::/64
+Prefix                   : 2001:db8:1::/64
 Autonomous address conf. : Yes
 Router lifetime          : 65535 seconds
-default via fe80::64b4:a9cf:2f36:8861
+default via fe80::1
 ```
 
 ### 3. 取得したアドレス
 
 | 種類 | アドレス |
 | --- | --- |
-| temporary dynamic | `240a:61:1221:b391:5f27:4e7e:931f:bc5d/64` |
-| mngtmpaddr（stable） | `240a:61:1221:b391:3aac:9861:5bf4:c4de/64` |
-| ULA temporary | `fde1:9adb:d4f2:9574:f340:c07b:5c64:4f70/64` |
-| ULA stable | `fde1:9adb:d4f2:9574:e6e2:677f:a01e:5f71/64` |
+| temporary dynamic | `2001:db8:1:<temporary-host-id>/64` |
+| mngtmpaddr（stable） | `2001:db8:1:<stable-host-id>/64` |
+| ULA temporary | `fd00:1:<temporary-host-id>/64` |
+| ULA stable | `fd00:1:<stable-host-id>/64` |
 
 ### 4. ufw の IPv6 ルール
 
@@ -66,7 +66,7 @@ default via fe80::64b4:a9cf:2f36:8861
 | ポート | 許可元 | 用途 |
 | --- | --- | --- |
 | 22/tcp | `<vpn-iface>` | Tailscale 経由の SSH |
-| 22/tcp | `240a:61:1221:b391::/64` | LAN 内 IPv6 からの SSH |
+| 22/tcp | `2001:db8:1::/64` | LAN 内 IPv6 からの SSH |
 | 8123/tcp | `<vpn-iface>` | Tailscale 経由の Home Assistant |
 | 41641/udp | 全 IPv6 | Tailscale |
 | 5353/udp | LAN | mDNS |

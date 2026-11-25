@@ -21,7 +21,7 @@ status: "draft"
 
 ## 前提
 
-- 現環境は Termux（Android、RAM 14 GB、GPU なし）。
+- 現環境は Termux（Android、RAM 容量は端末依存、GPU なし）。
 - 自宅 PC は Ryzen 3600、DDR4 64 GB、GTX 1660 SUPER 6 GB。
 - 学習者 1 人を家庭内で回す用途と、不特定多数に提供する用途を分けて扱う。
 

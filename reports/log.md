@@ -3,7 +3,7 @@
 ## 2026-11-24
 
 - 20:00 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
-  にスマホ（Galaxy S26 Ultra / Android 17）への展開手順と実機確認結果を追記。
+  にスマホ（一般 Android 端末）への展開手順と実機確認結果を追記。
   Termux + llama-server を推奨。Q4_K_M の転送完了を記録。
 
 - 01:20 - シークレットスキャンを `<current-account>/workflows` の

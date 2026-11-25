@@ -323,7 +323,7 @@ stock llama.cpp は indexer テンソルを読み込めない。
 破壊操作には Human-in-the-loop を必須とすることである
 （[OWASP LLM06](https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/main/2_0_vulns/LLM06_ExcessiveAgency.md)）。
 
-## スマホ（Galaxy S26 Ultra）への展開
+## スマホ（一般 Android 端末）への展開
 
 PC 版 Q4_K_M をスマホでも動かす場合の調査と実機確認結果をまとめる。
 
@@ -333,20 +333,20 @@ PC 版 Q4_K_M をスマホでも動かす場合の調査と実機確認結果を
 
 | 項目 | 値 |
 | --- | --- |
-| 型番 | SM-S948Q（`m3q` / `m3qjpnw`、日本向け SIM フリー） |
-| OS | Android 17（ユーザー訂正。出荷時は Android 16 で、2026-09 に 17 へ更新） |
+| 型番 | `<device-model>`（`<device-codename>`、SIM 構成は端末依存） |
+| OS | Android `<version>`（出荷時バージョンと更新時期は端末依存） |
 | ABI | arm64-v8a |
 | CPU | ARMv9-A（SME2 / SVE2 / BF16 / i8mm 対応） |
 | GPU | Adreno（`/dev/kgsl-3d0`、`ro.hardware.egl=adreno`） |
-| RAM | MemTotal 14.7 GiB / **MemAvailable 2.42 GiB**（確認時点） |
-| zRAM | SwapTotal 20 GiB |
-| ストレージ | /data 空き 304 GB |
-| 既存アプリ | Termux 0.118.3、Shizuku、Tasker / AutoInput |
-| ビルド | S948QOPU1BZJC |
+| RAM | MemTotal `<total>` GiB / **MemAvailable `<available>` GiB**（確認時点） |
+| zRAM | SwapTotal `<swap>` GiB |
+| ストレージ | /data 空き `<free>` GB |
+| 既存アプリ | 端末依存（ターミナルエミュレータ、権限補助、自動化ツール等） |
+| ビルド | `<build-id>`（端末依存） |
 
-Samsung 公式 JP 仕様ページのプロセッサ欄はクロック（4.74 GHz / 3.6 GHz）と
-オクタコアのみを記載し、SoC 名は記載しない。Snapdragon 8 Elite Gen 5 for Galaxy
-（SM8850）/ Adreno 840 はコミュニティ情報であり、SM-S948Q での同一性は推定である。
+メーカー公式仕様ページのプロセッサ欄はクロック（具体的な値は端末依存）と
+オクタコアのみを記載し、SoC 名は記載しない。フラッグシップ SoC / GPU
+（`<soc-model>` / `<gpu-model>`）はコミュニティ情報であり、`<device-model>` での同一性は推定である。
 
 Qwen3.5-4B Q4_K_M（2,740,937,888 バイト）を
 `/sdcard/Download/qwen35-4b-Q4_K_M.gguf` へ adb push 済み（17.1 MB/s、約 2 分 33 秒）。
@@ -357,7 +357,7 @@ Termux 内部の確認・操作は別途ユーザーの画面操作が必要で�
 
 エージェント用途（工具呼び出し・OpenAI 互換 API）では **Termux + llama-server** が
 事実上の選択肢である。PocketPal AI は GGUF をオフライン実行でき、
-Galaxy S26 Ultra でのベンチ提出もあるが、工具呼び出しと OpenAI 互換
+対象端末でのベンチ提出もあるが、工具呼び出しと OpenAI 互換
 エンドポイントは feature request 段階で、エージェント用途には向かない。
 LM Studio は Android 版を提供していない。Ollama も公式 Android アプリはない。
 
@@ -381,13 +381,13 @@ cp /sdcard/Download/qwen35-4b-Q4_K_M.gguf ~/
   --host 127.0.0.1 --port 18080
 ```
 
-起動前に `MemAvailable` が 2.42 GiB しかないため、他アプリを停止して
+起動前に `MemAvailable` が不足しているため、他アプリを停止して
 空きを 4 GB 以上確保する必要がある。初回は `-c 4096〜8192` から始める。
 公式モデルカードは 128K 維持を推奨するが、スマホでは非現実的である。
 
 ### バックエンドの注意
 
-8 Elite Gen 5 / Adreno 840 では backend ごとに問題が報告されている。
+フラッグシップ SoC / GPU では backend ごとに問題が報告されている。
 
 - Vulkan は量子化 MUL_MAT の誤計算と全層オフロード時の SIGSEGV 例がある。
   `-ngl 63` のように 1 層だけ CPU に残すと動く例もある。
@@ -404,10 +404,10 @@ cp /sdcard/Download/qwen35-4b-Q4_K_M.gguf ~/
 
 | 出典 | 条件 | 速度 |
 | --- | --- | --- |
-| [PocketPal Leaderboard](https://pocketpal.dev/leaderboard/device/Galaxy%20S26%20Ultra) | S26 Ultra / 4B IQ4_NL | tg 13.19 tok/s、pp 271 tok/s |
-| 同 | S26 Ultra / 4B UD-Q4_K_XL | tg 7.10 tok/s |
-| [LiteRT-LM モデルカード](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm) | S26 Ultra / Gemma 4 E2B GPU | tg 52.1 tok/s（投機的デコーディング時 91.7） |
-| [llama.cpp issue](https://github.com/ggml-org/llama.cpp/issues/26957) | S23 Ultra / 2B Q4_K_M CPU | tg 15.48 tok/s |
+| [PocketPal Leaderboard](https://pocketpal.dev/leaderboard/) | 対象端末 / 4B IQ4_NL | tg 13.19 tok/s、pp 271 tok/s |
+| 同 | 対象端末 / 4B UD-Q4_K_XL | tg 7.10 tok/s |
+| [LiteRT-LM モデルカード](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm) | 対象端末 / Gemma 4 E2B GPU | tg 52.1 tok/s（投機的デコーディング時 91.7） |
+| [llama.cpp issue](https://github.com/ggml-org/llama.cpp/issues/26957) | 別端末 / 2B Q4_K_M CPU | tg 15.48 tok/s |
 
 PC の 64 tok/s に対し、スマホの 4B Q4 は **7〜13 tok/s 程度** と見積もられる。
 同一条件の実機ベンチは未実施で、発熱・クロックスロットルで大きく変動する。
