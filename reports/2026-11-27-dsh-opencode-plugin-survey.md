@@ -339,6 +339,17 @@ session-query-sqlite は base 由来で存在するが `openAt: never` のため
 native の `terminal-controller` / `ui-sidebar-terminal` / `pty` は存在するが
 永続 PTY ツール（`dsh-tool-terminal`）は未ロード。
 
+2026-11-28 02:26 に、ユーザーの承認（「任せた」）のもとで次を実施した。
+
+- `dsh-delegation` の非重複部分のうち、スキルへ移植可能な executor ガイダンスを
+  `swarm-coding` / `swarm-research` / `swarm-todo-discovery` / `swarm-project-review`
+  の子エージェント指示テンプレートへ追加した。「親は coordinator として計画・割当て・
+  検収を担い、子は executor として割当て範囲のみを実行する。判断が必要なら親へ返す。
+  `subagent_fork` で生えた子も同じ方針を継承する」という一文。
+  UI トグル・選択の記憶・ターン後のロックはスキル単体では移植不可のため未実施。
+- `@klarkxy/dsh-git-commit` 0.3.11 を web プロファイルへ導入。
+  `dsh --profile web --dump-config` に `git-commit`（`disabled: false`）のランタイム行を確認。
+
 ## 未確認事項
 
 - DSH のプラグイン有効状態は、GUI 表示（ユーザー報告: 組み込み4・実験的12がすべてオン）と

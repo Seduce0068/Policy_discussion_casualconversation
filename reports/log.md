@@ -2,6 +2,8 @@
 
 ## 2026-11-28
 
+- 02:26 - `dsh-delegation` の executor ガイダンスを swarm 系スキル4件へ移植し、
+  `@klarkxy/dsh-git-commit` 0.3.11 を web プロファイルへ導入。ランタイム行を確認。
 - 02:16 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
   に klarkxy 3プラグインと swarm 系スキルの違い、DSH のシームレス性（5軸）を追記。
   git-commit は独自価値、current-title は部分的代替可へ修正、delegation は機能代替可・
