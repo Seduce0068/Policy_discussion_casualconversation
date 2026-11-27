@@ -1,5 +1,12 @@
 # レポート更新履歴
 
+## 2026-11-28
+
+- 02:16 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  に klarkxy 3プラグインと swarm 系スキルの違い、DSH のシームレス性（5軸）を追記。
+  git-commit は独自価値、current-title は部分的代替可へ修正、delegation は機能代替可・
+  UI 独自と判定。未導入6件の現状も確定。
+
 ## 2026-11-27
 
 - 21:56 - `dshmarket` 1.84.1 と `@klarkxy/dsh-web-search-manager` 0.4.1 を web プロファイルへ

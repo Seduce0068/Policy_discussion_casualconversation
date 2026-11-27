@@ -257,6 +257,61 @@ AGENTS.md §16 の「DeepSeek API を Web 検索バックエンドとして使�
 - **重複**: 通知系は DSH 側で3系統、レビュー・テスト系 agent/command は OpenCode 側で自前充足。
   新規プラグインはこれらと重複しない領域に限定すべき。
 
+## klarkxy 3プラグインと swarm 系スキルの違い（2026-11-28 再評価）
+
+ユーザーから「既存よりクオリティ・使い方がうまいなら検討すべき」「swarm 系スキルとの違いは？」
+「DSH がシームレスに使いやすかったりするのではないか？」との指摘を受け、
+klarkxy 製3プラグインを swarm-research（完全無制限プロファイル、子4体）で再評価した。
+
+### スキルとプラグインの境界
+
+- スキルはモデルが `skill` ツールで明示的に読み込むプロンプト手順であり、
+  ツールや UI を登録しない。プラグインは起動時に Cordis へ effect として登録され、
+  waterfall listener（`agent/pre-step` / `tools/pre-execute` 等）としてループ途中で自動適用される。
+- ただし「スキル＝永続状態なし」は不正確。swarm 系スキルは `/goal` で R1〜R6 を
+  ランタイムの永続ゴールとして扱い、review-flow は SQLite に結果を蓄積する。
+  正しくは「スキル＝手順の明示的読込＋ゴール/DB による永続状態」と区別する。
+- `swarm-limited` / `swarm-unlimited` はリソース予算の上書き層であり、
+  機能そのものは対象スキルに委譲する。delegation プラグインとは役割が異なる。
+
+出典: `~/.agents/AGENTS.md:81`、`~/.agents/skills/swarm-coding/SKILL.md:129-130`、
+[skill-tool row](../../../.npm-global/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-agent-preset/skills/dsh-doc/references/packages.md):435、
+[practices.md](../../../.npm-global/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-agent-preset/skills/dsh-doc/references/practices.md):8-16。
+
+### 3プラグインの再評価
+
+| プラグイン | 最新版 | 既存との関係 | 判定 |
+| --- | --- | --- | --- |
+| `@klarkxy/dsh-current-title` | 0.3.11 | 公式 session-titles-bundle と中核（全メッセージ追跡・手動名保持・失敗時旧タイトル維持）はほぼ同一。klarkxy は Web UI・更新頻度選択・カスタムプロンプト・再生成ボタン・競合 provider の自動無効化と復元で差別化 | **部分的代替可**（前回の「完全重複」を修正） |
+| `@klarkxy/dsh-delegation` | 0.2.8 | 既存 `subagent` / `subagent_fork` + swarm-coding で機能は代替可。ただしセッション作成ページのトグル、選択の記憶、fork 継承、子への executor ガイダンス自動付与は独自。ツール・権限は不変で委譲は誘導のみ | **機能は代替可、UI/状態は独自** |
+| `@klarkxy/dsh-git-commit` | 0.3.11 | AGENTS.md §4 はエージェント判断の commit を許すが、変更のグルーピング・モデル計画・失敗時復旧・設定保持を担う既存なし。会話右上の Commit ボタン＋確認ダイアログで、既定 `allowFallback=false` は安全側 | **代替不可（独自価値あり）** |
+
+いずれも Web 界面を持ち、スラッシュコマンドではなく UI 操作として統合される。
+DSH >=0.2.1-rc.1 を要求し、直近4日以内に npm publish、前日にリポジトリ更新と活発である。
+出典: [klarkxy index.json](https://raw.githubusercontent.com/klarkxy/dsh-plugins/main/index.json)、
+[current-title](https://klarkxy.github.io/dsh-plugins/en/plugins/current-title/)、
+[delegation](https://klarkxy.github.io/dsh-plugins/en/plugins/delegation/)、
+[git-commit](https://klarkxy.github.io/dsh-plugins/en/plugins/git-commit/)
+（いずれも 2026-11-28 取得）。
+
+### DSH のシームレス性
+
+5軸で定義できる: ①コマンド不要 ②モデルの自動選択 ③GUI 設定完結 ④HMR/再起動の自動
+⑤セッション横断の状態持続。
+
+- `dshmarket`: ③④⑤を満たす。toggle は `cordis.patch.yml` に書き出され HMR で約1秒再構成、
+  テーマは即時適用かつ再起動後も選択が残る。
+- `web-search-manager`: ②③を満たす。Settings 1画面でプロバイダ順序・モード・承認を管理し、
+  `ctx.web` を引き継いで tool-web が無い構成でもモデルへ `web_search` / `web_fetch` を自動提供。
+- `current-title`: ②③⑤を満たす。インストール後は自動更新、手動名は保護。
+- `delegation`: ③⑤を満たすが、プロンプト誘導のみで②の確実性は限定的。
+- `git-commit`: ①は満たすがボタン操作が必須で②は満たさない。過大評価を避ける。
+
+結論: ユーザーの指摘のとおり、DSH プラグインはスキルより「シームレス」な軸（GUI 完結・
+自動適用・状態永続）を持つ。ただし git-commit と delegation はモデルが直接呼ぶツールではなく
+UI 操作である点を明示し、swarm スキルは「一回限りのオーケストレーション手順」として
+棲み分けるのが妥当である。
+
 ## 導入結果
 
 ユーザーの明示的な指示により、2026-11-27 21:56 に次の2件を web プロファイルへ導入した。
@@ -274,6 +329,15 @@ AGENTS.md §16 の「DeepSeek API を Web 検索バックエンドとして使�
   `@deepseek-ai/dsh-web-search-exa` が中心で、今回の2件のロードは成功している。
 - Web Search のプロバイダ設定・順序付けは DSH 再起動後の Settings → Web Search で行う。
   再起動後の実動作は未確認。
+
+2026-11-28 の実測で、次はすべて**未導入**と確定した（bundles / dependencies / `dump-config` /
+`opencode plugin list` のいずれにも不在）: `dsh-mnemon`、`dsh-remote`、
+`@deepseek-ai/dsh-experimental-session-search`、`@deepseek-ai/dsh-experimental-terminal-bundle`、
+`opencode-mem`、`opencode-supermemory`。導入済みは `dshmarket` と
+`@klarkxy/dsh-web-search-manager` の2件のみで、前回の記録と一致する。
+session-query-sqlite は base 由来で存在するが `openAt: never` のため全文検索は無効、
+native の `terminal-controller` / `ui-sidebar-terminal` / `pty` は存在するが
+永続 PTY ツール（`dsh-tool-terminal`）は未ロード。
 
 ## 未確認事項
 
@@ -302,7 +366,11 @@ AGENTS.md §16 の「DeepSeek API を Web 検索バックエンドとして使�
    出力回収を確認する。サイドバーでの監視・入力引き継ぎが必要な場合のみバンドルを有効化する。
 4. OpenCode ではまず既存 MCP memory で事実・関係の保存が足りるか確認し、
    あいまいな意味類似での recall や自動注入が必要なら `opencode plugin add opencode-mem@latest` を実行する。
-5. 1週間程度で効果と競合を振り返り、dsh-mnemon の要否を最後に判断する。
+5. klarkxy 3プラグインのうち `git-commit` は独自価値があるため第一候補として導入を検討する。
+   `current-title` は公式バンドルとの UI 差（更新頻度・再生成ボタン）を重視する場合のみ、
+   `delegation` は常時トグルによる軽量ガイダンスが欲しい場合のみ導入し、
+   swarm スキルとの二重指示を避ける。
+6. 1週間程度で効果と競合を振り返り、dsh-mnemon / dsh-remote の要否を最後に判断する。
 
 ## 参照
 
