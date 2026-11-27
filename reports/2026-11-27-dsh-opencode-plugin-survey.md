@@ -349,6 +349,15 @@ native の `terminal-controller` / `ui-sidebar-terminal` / `pty` は存在する
   UI トグル・選択の記憶・ターン後のロックはスキル単体では移植不可のため未実施。
 - `@klarkxy/dsh-git-commit` 0.3.11 を web プロファイルへ導入。
   `dsh --profile web --dump-config` に `git-commit`（`disabled: false`）のランタイム行を確認。
+- 2026-11-28 02:34 に、ユーザーの追加指示により `@klarkxy/dsh-current-title` 0.3.11 も
+  web プロファイルへ導入。`bundles` / `dependencies` に登録され、
+  `--dump-config` に `current-title`（`disabled: false`）のランタイム行を確認。
+  既存の `optional-session-title-all-prompts` 行は静的設定に残るが、プラグインが
+  起動時に競合 provider を自動で無効化し、アンインストール時に復元する設計のため
+  追加の手動設定は不要。
+- 他の未導入候補（`dsh-mnemon` / `dsh-remote` / `opencode-mem` /
+  `session-search` / `terminal-bundle`）は用途が明確でないため保留。
+  `dsh-delegation` は executor ガイダンスをスキルへ移植済みのため導入しない。
 
 ## 未確認事項
 

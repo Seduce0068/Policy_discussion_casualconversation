@@ -2,6 +2,8 @@
 
 ## 2026-11-28
 
+- 02:34 - `@klarkxy/dsh-current-title` 0.3.11 を web プロファイルへ導入。
+  bundles 登録と `--dump-config` のランタイム行を確認。他は用途不明で保留。
 - 02:26 - `dsh-delegation` の executor ガイダンスを swarm 系スキル4件へ移植し、
   `@klarkxy/dsh-git-commit` 0.3.11 を web プロファイルへ導入。ランタイム行を確認。
 - 02:16 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
