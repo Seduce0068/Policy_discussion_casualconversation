@@ -1,7 +1,7 @@
 ---
 type: Report
 title: "個人リポジトリの依存・ライブラリ・言語バージョン最新性チェック"
-description: "<current-account> 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
+description: "`<current-account>` 配下 31 リポジトリ（オリジナル 27 + fork 4）のマニフェストを一次レジストリと照合し、更新候補と優先度を整理した"
 tags:
   - dependency
   - audit

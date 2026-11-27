@@ -1,5 +1,28 @@
 # レポート更新履歴
 
+## 2026-11-27
+
+- 21:56 - `dshmarket` 1.84.1 と `@klarkxy/dsh-web-search-manager` 0.4.1 を web プロファイルへ
+  導入。bundles 登録と `--dump-config` のランタイム行を確認。再起動後の実動作は未確認。
+- 21:52 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  にコミュニティプラグインの機能比較表を追記。dshmarket のテーマ切替・バックアップ・
+  診断、web-search-manager の web_search 一元代替は既存機能で代替不可と判明し、
+  前回の「不要」判断を修正。
+- 21:38 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  のプラグイン有効状態を確定。`--dump-config` で GUI 表示とバンドル登録は別レイヤーで
+  矛盾しないことを確認（ralph / terminal / session-search / liveshare はランタイムに
+  不在、worktree は forge-bundle 経由で存在）。
+- 21:36 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  に DSH プラグイン有効状態の食い違いを記録。ユーザーは GUI で組み込み4・実験的12が
+  すべてオンと報告するが、`plugin_manager` とプロファイル設定では公式 experimental 5件が
+  無効。追加導入判断は食い違い解消まで保留。
+- 21:15 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  に既存スキル・既存機能との比較を追記。native の session-query / bash-jobs が
+  代替可能なため session-search と terminal-bundle、opencode-mem を条件付きへ格下げ。
+- 21:05 - [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md)
+  を追加。swarm-research の R1〜R5 を並列調査し、DSH は session-search /
+  terminal-bundle、OpenCode は opencode-mem を推奨。子1体の途中終了分は親が代替検証。
+
 ## 2026-11-24
 
 - 20:00 - [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md)
