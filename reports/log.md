@@ -2,6 +2,9 @@
 
 ## 2026-11-28
 
+- 02:45 - `dsh-mnemon` / `dsh-remote` / session-search / terminal-bundle /
+  `opencode-mem` を導入。delegation は移植済みのため除外。公式 experimental 2件は
+  npm 版 0.2.1-alpha.2 で、再起動後の実動作は未確認。
 - 02:34 - `@klarkxy/dsh-current-title` 0.3.11 を web プロファイルへ導入。
   bundles 登録と `--dump-config` のランタイム行を確認。他は用途不明で保留。
 - 02:26 - `dsh-delegation` の executor ガイダンスを swarm 系スキル4件へ移植し、

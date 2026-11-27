@@ -355,9 +355,19 @@ native の `terminal-controller` / `ui-sidebar-terminal` / `pty` は存在する
   既存の `optional-session-title-all-prompts` 行は静的設定に残るが、プラグインが
   起動時に競合 provider を自動で無効化し、アンインストール時に復元する設計のため
   追加の手動設定は不要。
-- 他の未導入候補（`dsh-mnemon` / `dsh-remote` / `opencode-mem` /
-  `session-search` / `terminal-bundle`）は用途が明確でないため保留。
-  `dsh-delegation` は executor ガイダンスをスキルへ移植済みのため導入しない。
+- 2026-11-28 02:45 に、ユーザーの「入れただけで負荷がかかるわけでもないなら
+  とりあえず入れておけばいいのでは」との判断により、残る未導入候補も導入した。
+  - `dsh-mnemon` 0.5.55 / `dsh-remote` 1.5.0
+  - `@deepseek-ai/dsh-experimental-session-search` 0.2.1-alpha.2
+  - `@deepseek-ai/dsh-experimental-terminal-bundle` 0.2.1-alpha.2
+  - `opencode-mem` 2.44.0（`opencode.jsonc` の `plugins` に登録、`opencode plugin list` で確認）
+  - `dsh-delegation` のみ除外（executor ガイダンスをスキルへ移植済みで二重指示になるため）
+  - 公式 experimental の2件は npm 公開版が `0.2.1-alpha.2` で、
+    チェックアウトの `0.2.2-rc.5` と異なる。`--dump-config` は成功しているが、
+    実動作は DSH 再起動後に確認が必要。
+- 負荷に関する補足: `dsh-current-title` は既定 `cadence='all-prompts'` で
+  毎メッセージにタイトル生成 LLM を呼ぶ。`dsh-mnemon` / `opencode-mem` は
+  アイドル時の自動抽出ベクトル処理が走る。「入れただけ」で完全に無負荷ではない。
 
 ## 未確認事項
 
