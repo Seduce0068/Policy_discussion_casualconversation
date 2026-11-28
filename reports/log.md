@@ -2,6 +2,13 @@
 
 ## 2026-11-28
 
+- 19:13 - [PC と Bluetooth イヤホンの接続不安定・ユーザビリティ改善調査](2026-11-28-bluetooth-headphones-stability.md)
+  を追加。途切れは TX 完了報告欠落と無効な btusb 設定、取り合いはマルチポイント設定が主因と特定。
+  R4 で Sony の Linux 対応外・BlueZ 5.85 の plugin 主張を格下げ。R5 で 0411:0374 の
+  RTL8761BU 推定と汎用バインドを追記。設定変更は未実施。
+- 15:30 - [DSH プラグイン導入時のホットリロード調査](2026-11-28-dsh-plugin-hot-reload.md)
+  を追加。標準 `dsh-hmr` が有効で追加プラグイン不要だが、preset 変更・`restart-required`・
+  Web release 変更などは同一セッション反映の例外と整理。
 - 02:45 - `dsh-mnemon` / `dsh-remote` / session-search / terminal-bundle /
   `opencode-mem` を導入。delegation は移植済みのため除外。公式 experimental 2件は
   npm 版 0.2.1-alpha.2 で、再起動後の実動作は未確認。

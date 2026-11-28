@@ -5,6 +5,8 @@
 <!-- okf-index:begin -->
 | 文書 | 状態 | 概要 |
 | --- | --- | --- |
+| [PC と Bluetooth イヤホンの接続不安定・ユーザビリティ改善調査](2026-11-28-bluetooth-headphones-stability.md) | draft | 途切れ・片耳のみ接続・端末の取り合い・スマホ再生中の PC 接続不能について、ローカル実測と一次情報で原因を特定し優先度付きの改善手順を整理した報告 |
+| [DSH プラグイン導入時のホットリロード調査](2026-11-28-dsh-plugin-hot-reload.md) | draft | DSH 0.2.2-rc.5 の web プロファイルを対象に、再起動・新規セッションなしでプラグインを反映させる仕組みと限界を、ローカル実測と一次情報で調査した報告 |
 | [DSH / OpenCode プラグイン導入調査](2026-11-27-dsh-opencode-plugin-survey.md) | draft | 2026-11-27 時点のローカル環境実測と一次情報をもとに、DSH と OpenCode へ導入すべきプラグインを絞り込んだ調査報告 |
 | [AIエージェント時代の秘密・機微情報管理のベストプラクティス調査](2026-11-24-ai-agent-secrets-management-best-practices.md) | draft | 2026年11月時点の一次情報をもとに、エージェント認証・動的シークレット・実行時制御・ローカル保管・規制要件を横断調査した |
 | [ローカル LLM におけるスパースアテンション活用の実現可能性評価](2026-11-23-local-sparse-attention-llm-feasibility.md) | draft | GTX 1660 SUPER 6GB / Turing sm_75 環境で、スパース・線形アテンション系モデルの速度、エージェント適性、コミュニティ派生のリスクを実測と一次情報で評価した。 |
