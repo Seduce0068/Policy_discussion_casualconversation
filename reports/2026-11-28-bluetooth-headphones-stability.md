@@ -26,7 +26,9 @@ status: "draft"
   TX 完了報告が 1 秒以上欠落したときの警告で、抑制カウンタが 1432 に達した回もある。
   末尾の `Bluetooth adapter firmware bug?` は**仮説であり診断ではない**。
 - 片耳だけ接続される症状は、片側だけをケースから取り出した場合は**仕様**である。
-  両側装着なのに片側だけなら、リセット・ファームウェア更新・初期化の順で対処する。
+  ただしスマホで時間経過しても解消しない場合は、Classic Audio から LE Audio への
+  切り替え後に片側だけ接続される公式の既知問題が該当し得る。
+  スマホ側の削除（forget）と再ペアリングが第一候補である。
 - 端末の取り合いとスマホ再生中の PC 接続不能は、WF-1000XM6 のマルチポイント設定で解決できる。
   Sony 公式は「2 台の機器と同時に接続」「再生機器の切り替え」「接続中のリストから機器を固定」を
   用意している。ただし Linux PC は公式の対応対象外（Windows 11 / macOS のみ）である。
@@ -156,15 +158,50 @@ SDP ルックアップを要さない）。HFP 失敗がデバイス接続全体
 ### 片耳のみ接続
 
 Sony 公式によれば、充電ケースから片側だけを取り出した場合はその側だけに電源が入り、
-もう片側を装着すると自動的に左右が接続される。片耳だけ音が出る状態はこの仕様であり、
+もう片側を装着すると自動的に左右が接続される。両方を取り出した場合は両側がオンになり
+左右接続が確立する。片耳だけ音が出る状態はこの仕様であり、
 Classic Audio 接続時は片耳でも左右チャンネルを合成した音声が聞こえる。
-両側を装着しているのに片側だけ音が出る場合は不具合で、
-「ケースに戻して蓋を開け直す → 接続機器を再起動 → リセット → 初期化 → 相談窓口」の順に対処する。
-リセットはペアリング情報を保持し、初期化は全ペアリング情報を削除する。
 
-接続時に `WF-1000XM6` と `LE_ WF-1000XM6` の両方（またはいずれか）が表示される場合があり、
-両方表示時は実モデル名の `WF-1000XM6` を選ぶよう公式に指示されている。
-これは Classic / LE Audio の別エントリであり、左右分割を示す公式記述はない。
+利用者から追加された観察（2026-11-28 19:45 頃）:
+
+- PC では一定時間待てば両側から音が出るようになるが、スマホでは時間が経っても解消しない。
+- ケースから 1 個目を取り出して装着している間に 2 個目を取り出して装着すると、
+  「片方だけ装着」と判定されているのではないかという仮説。
+- 実際スマホの Bluetooth 接続表示に片方しか表示されることがある。
+
+この観察について次が分かった。
+
+1. 公式の片耳ページには装着順序や時間差の但し書きがない。したがって
+   「装着途中の片側判定が永続する」という仮説は**未確認**である。
+   TWS の実装には「最初に取り出した側が固定 primary になりロールを切り替えない」
+   方式があり、技術的にあり得ないわけではない。ただし WF-1000XM6 がその方式を
+   採用しているかは公式資料から断定できない。
+2. Sony は「Classic Audio から LE Audio へ切り替えた後に片側だけ接続される」症状を
+   公式に認識しており、スマホの Bluetooth 設定からイヤホンを削除（forget）して
+   再ペアリングするよう案内している。スマホ側で時間が経っても解消しない場合は、
+   この既知問題が最も有力である。
+3. スマホに `LE_ WF-1000XM6` だけが表示される場合は、すぐ選択せず数秒待つと
+   プレフィックスなしの `WF-1000XM6` が表示される。両方表示された場合は
+   `WF-1000XM6` を選ぶ。これは Classic / LE Audio の別エントリであり、
+   左右分割を示す公式記述はない。
+4. PC では解消／スマホでは不解消という差そのものは公式に説明されていない。
+   BlueZ の再接続は 7 回・1,2,4,8,16,32,64 秒の指数バックオフで
+   link loss と host suspend 時に限られる一方、Android の PhonePolicy は
+   Bluetooth ON 時に直近 A2DP 端末へ autoConnect し、6 秒後に未接続プロファイルを試す。
+   この差が一因になり得るが、WF-1000XM6 での因果は未確認である。
+   WF-1000XM5 で Linux のみ片側再接続するコミュニティ報告はあるが、
+   XM6 への一般化はできない。
+
+スマホ側の回復手順は次を順に試す。
+
+1. Android の Bluetooth を OFF/ON して `WF-1000XM6` をタップする。
+2. Sound Connect の「接続中のデバイス」で再生機器を切り替え／固定する。
+3. Classic／LE Audio を切り替えた直後なら、Bluetooth 設定でイヤホンを削除し再ペアリングする。
+4. 両側をケースに戻して蓋を閉じ、開け直して取り出す。
+5. リセット（ペアリング情報を保持、約 20 秒押し）。
+6. 最後の手段として初期化（全ペアリング情報削除、ホスト側も削除して再ペアリング）。
+
+各段階で接続通知音が鳴り、Sound Connect の左右バッテリー表示が両方出るかを確認する。
 
 ### 端末の取り合い
 
@@ -240,6 +277,8 @@ Android の Sony | Sound Connect で次を設定する。
 あわせて、ホスト側に `WF-1000XM6` と `LE_ WF-1000XM6` が両方表示された場合は
 `WF-1000XM6` を選ぶ。ペアリング済みデバイスが 4 台あるため、
 3 台目接続時の入れ替えを避ける目的でも不要用の接続を整理する。
+片耳状態がスマホで残る場合は、前節「片耳のみ接続」の回復手順
+（forget → 再ペアリング）を先に試す。
 
 ### P1: コーデックとプロファイルを絞る
 
@@ -353,6 +392,10 @@ A2DP では AVDTP の Set Configuration / Suspend / Close と ACL Disconnect を
   17:58:48 の HFP と A2DP の同一秒切断は因果証明ではない。
 - 現在の再生コーデック（SBC / AAC / LDAC / LC3）と LE Audio の使用有無。
 - 3 台目の機器が実際に接続に関与したか。
+- 「装着順序で片側判定され、それがスマホ側に永続する」という仮説。Sony 公式に
+  装着順序・時間差の記述はなく、WF-1000XM6 の TWS 実装方式も未確認。
+- PC では解消／スマホでは不解消という差の直接原因。BlueZ と Android で
+  再接続ポリシーが異なることは確認できるが、WF-1000XM6 での因果は未確認。
 
 ## 参照
 
@@ -360,6 +403,13 @@ A2DP では AVDTP の Set Configuration / Suspend / Close と ACL Disconnect を
 - [Sony サポート: 再生機器の切り替え](https://support.sony.jp/electronics/support/articles/00376855)
 - [Sony サポート: 接続の切り替えができない場合](https://support.sony.jp/electronics/support/articles/00352009)
 - [Sony ヘルプガイド: 片側だけの使用](https://helpguide.sony.net/mdr/2985/v1/ja/contents/F011_Using_only_one_headset_unit.html)
+- [Sony サポート: LE Audio 切替後の片側接続](https://www.sony.com/electronics/support/wireless-headphones-bluetooth-headphones/wf-1000xm6/articles/00366813)
+- [Sony サポート: LE_ プレフィックスのみ表示される場合](https://www.sony.com/electronics/support/wireless-headphones-bluetooth-headphones/wf-1000xm6/articles/00204611)
+- [Sony ヘルプガイド: Android スマホへの接続](https://helpguide.sony.net/mdr/2985/v1/ja/contents/F024_Connecting_to_a_paired_Android_smartphone.html)
+- [Sony サポート: リセットと初期化](https://support.sony.jp/electronics/support/articles/00377954)
+- [Qualcomm: True Wireless ホワイトペーパー](https://assets.qualcomm.com/rs/385-TWS-803/images/whitepaper-the-evolution-of-true-wireless-technology-2020.pdf)
+- [BlueZ issue #2267](https://github.com/bluez/bluez/issues/2267)
+- [AOSP Bluetooth: PhonePolicy.java](https://android.googlesource.com/platform/packages/modules/Bluetooth/+/refs/heads/main/android/app/src/com/android/bluetooth/btservice/PhonePolicy.java)
 - [Sony ヘルプガイド: トラブルシューティング](https://helpguide.sony.net/mdr/2985/v1/ja/contents/F063_Troubleshooting.html)
 - [Sony ヘルプガイド: 対応コーデック](https://helpguide.sony.net/mdr/2985/v1/en/contents/F055_Supported_codecs.html)
 - [WirePlumber: Bluetooth 設定](https://pipewire.pages.freedesktop.org/wireplumber/daemon/configuration/bluetooth.html)

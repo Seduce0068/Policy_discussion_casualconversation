@@ -2,6 +2,10 @@
 
 ## 2026-11-28
 
+- 20:01 - [PC と Bluetooth イヤホンの接続不安定・ユーザビリティ改善調査](2026-11-28-bluetooth-headphones-stability.md)
+  に利用者追加観察を反映。スマホで片耳が解消しない原因として Sony 公式の
+  LE Audio 切替後既知問題を特定し、forget→再ペアリングを第一候補に記載。
+  装着順序仮説と PC/スマホ差は未確認として記録。
 - 19:13 - [PC と Bluetooth イヤホンの接続不安定・ユーザビリティ改善調査](2026-11-28-bluetooth-headphones-stability.md)
   を追加。途切れは TX 完了報告欠落と無効な btusb 設定、取り合いはマルチポイント設定が主因と特定。
   R4 で Sony の Linux 対応外・BlueZ 5.85 の plugin 主張を格下げ。R5 で 0411:0374 の
